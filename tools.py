@@ -27,13 +27,14 @@ class DocumentReplace:
             paragraph_text = paragraph.text
             if paragraph_text:
                 if searchre.search(paragraph_text):
-                    self.clear_paragraph(paragraph)
-                    paragraph.add_run(re.sub(search, replace, paragraph_text))
+                    paragraph.text = paragraph.text.replace(search, replace)
         return paragraph
 
-
+    # Deprecated
     def clear_paragraph(self, paragraph):
         p_element = paragraph._p
+        print (paragraph)
+        exit()
         p_child_elements = [elm for elm in p_element.iterchildren()]
         for child_element in p_child_elements:
             p_element.remove(child_element)
@@ -80,3 +81,13 @@ class Manager:
                 file.write(response.content)
             else:
                 raise FileNotFoundError("Hash %s Not Found in ipfs"%self.hash)
+
+
+
+
+
+
+
+
+
+

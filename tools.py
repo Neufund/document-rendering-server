@@ -14,10 +14,10 @@ class DocumentReplace:
 
     def paragraph_replace(self, tags_dic):
         pattern = re.compile('|'.join(tags_dic.keys()))
-        result = [pattern.sub(lambda m:tags_dic[m.group(0)], paragraph.text) if paragraph.text else None for paragraph in self.doc.paragraphs]
+        for paragraph in self.doc.paragraphs:
+            if paragraph.text:
+                paragraph.text = pattern.sub(lambda m:tags_dic[m.group(0)], paragraph.text)
 
-        for i in range(len(self.doc.paragraphs)):
-            self.doc.paragraphs[i].text = result[i]
 
 class Manager:
     def __init__(self, hash):

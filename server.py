@@ -1,17 +1,14 @@
-import os
+import os ,sys
 import logging
-from werkzeug.exceptions import HTTPException
+from exceptions import *
 from flask import Flask, jsonify, request , abort
 from flask import send_file
 from flask_cors import CORS
 from config import *
 from tools import *
 
-
 app = Flask(__name__)
-app.config.from_mapping(os.environ)
 
-CORS(app)
 
 def init_logging():
     """Initializes logging."""
@@ -29,9 +26,13 @@ def init_logging():
 
     logging.basicConfig(level=LOG_LEVEL,
                         format=LOG_FORMAT, style='{')
+def _log_exception():
+    exc_type, exc_obj, exc_tb = sys.exc_info()
+    file_name = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+    logging.error("Exception type#{}#{}#{}".format(
+        exc_type, file_name, exc_tb.tb_lineno))
 
 
-init_logging()
 
 @app.route('/api/document' , methods=['POST'])
 def replace():
@@ -51,23 +52,23 @@ def replace():
 
 @app.errorhandler(403)
 def forbidden(ex):
-    logging.error('Server Error: %s', ex.description)
+    _log_exception()
     return jsonify({"code": 403, "message": ex.description}), 403
 
 @app.errorhandler(400)
 def forbidden(ex):
-    logging.error('Server Error: %s', ex.description)
+    _log_exception()
     return jsonify({"code": 400, "message": ex.description}), 400
 
 
 @app.errorhandler(404)
 def not_found(ex):
-    logging.error('Server Error: %s', ex.description)
+    _log_exception()
     return jsonify({"code": 404, "message": ex.description}), 404
 
 @app.errorhandler(405)
 def not_found(ex):
-    logging.error('Server Error: %s', ex.description)
+    _log_exception()
     return jsonify({"code": 405, "message": ex.description}), 405
 
 @app.errorhandler(500)
@@ -79,23 +80,17 @@ def internal_server_error(ex):
 @app.errorhandler(Exception)
 def handle_error(e):
     code = 500
-    message =''
-    if isinstance(e, FileNotFoundError):
-        code = 404
-        message = str(e)
-    elif isinstance(e, FileExistsError):
-        message = str(e)
-        code = 403
-    elif isinstance(e, IOError):
-        message = str(e)
-        code = 500
-    elif isinstance(e, HTTPException):
-        message = e.description
-        code = e.code
+    message ='Server Error'
+    if isinstance(e, MainException):
+        code = e.get_code()
+        message = e.get_message()
 
-    logging.error('Server Error: %s', message)
+    _log_exception()
     return jsonify({"code": code, "message": message}),code
 
 
 if __name__ == '__main__':
+    app.config.from_mapping(os.environ)
+    CORS(app)
+    init_logging()
     app.run(debug=True)

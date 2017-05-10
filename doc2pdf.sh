@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+
 if ! type soffice > /dev/null; then
     echo "command soffice is not exist, you can install it by the following command:"
     case "$(uname -s)" in
@@ -32,3 +33,4 @@ do
        soffice --headless --convert-to pdf $FILE1 --outdir converted
     fi
 done
+exit 0

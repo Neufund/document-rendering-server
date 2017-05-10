@@ -6,7 +6,6 @@ import re
 from subprocess import call
 from config import *
 import logging
-
 class DocumentReplace:
     def __init__(self , doc):
         self.doc = doc
@@ -21,24 +20,12 @@ class DocumentReplace:
         return result
 
 
-    def paragraph_replace(self, search, replace):
-        searchre = re.compile(search)
-        for paragraph in self.doc.paragraphs:
-            paragraph_text = paragraph.text
-            if paragraph_text:
-                if searchre.search(paragraph_text):
-                    paragraph.text = paragraph.text.replace(search, replace)
-        return paragraph
+    def paragraph_replace(self, tags_dic):
+        pattern = re.compile('|'.join(tags_dic.keys()))
+        result = [pattern.sub(lambda m:tags_dic[m.group(0)], paragraph.text) if paragraph.text else None for paragraph in self.doc.paragraphs]
 
-    # Deprecated
-    def clear_paragraph(self, paragraph):
-        p_element = paragraph._p
-        print (paragraph)
-        exit()
-        p_child_elements = [elm for elm in p_element.iterchildren()]
-        for child_element in p_child_elements:
-            p_element.remove(child_element)
-
+        for i in range(len(self.doc.paragraphs)):
+            self.doc.paragraphs[i].text = result[i]
 
 class Manager:
     def __init__(self, hash):
@@ -54,8 +41,8 @@ class Manager:
             if replace_tags:
                 logging.debug('start replacing tags: %s.docx'%path)
 
-                for key in replace_tags:
-                    replace.paragraph_replace('{%s}'%key , replace_tags[key])
+                # for key in replace_tags:
+                replace.paragraph_replace(replace_tags)
 
             doc.save('%s/%s.docx'%(CONVERTED_DIR,self.hash))
             logging.debug('file has been saved in: %s/%s.docx'%(CONVERTED_DIR,self.hash))
@@ -66,11 +53,23 @@ class Manager:
         input_filename = '%s/%s.docx'%(CONVERTED_DIR,self.hash)
 
         if os.path.isfile(input_filename):
-            call('./doc2pdf.sh %s'%(input_filename), shell=True )
+            result = call('./doc2pdf.sh %s'%(input_filename), shell=True )
+            if result == 0:
+                logging.info("PDF file saved successfully")
+            else:
+                err_message = "Bash script error in saving PDF file with hash %s"%self.hash
+                logging.error(err_message)
+                raise IOError(err_message)
         else:
            raise FileNotFoundError("Docx File %s.docx not found"%self.hash)
 
+    def _is_document_pinned(self):
+        cmd = 'ssh %s docker exec -i %s ipfs pin ls %s'%(SSH_USER , DOCKRE_ID , self.hash)
+        return call(cmd.split(" ")) == 0
+
     def download_ipfs_document(self):
+        if not self._is_document_pinned(): raise FileExistsError('You don\'t have permission to access.')
+
         url = '%s/%s'%(IPFS_NODE_URL,self.hash)
         file_name = "%s/%s.docx"%(DOWNLOADS_DIR,self.hash)
         logging.debug('start Download IPFS document: %s'%self.hash)
@@ -81,13 +80,3 @@ class Manager:
                 file.write(response.content)
             else:
                 raise FileNotFoundError("Hash %s Not Found in ipfs"%self.hash)
-
-
-
-
-
-
-
-
-
-

@@ -1,20 +1,18 @@
 import os
 import logging
-from flask import Flask, jsonify, request
+from werkzeug.exceptions import HTTPException
+from flask import Flask, jsonify, request , abort
 from flask import send_file
 from flask_cors import CORS
-from config import CONVERTED_DIR
-from config import LOG_LEVEL
-from config import LOG_COLOR
-from config import LOG_FORMAT
+from config import *
+from tools import *
+
+
 app = Flask(__name__)
 app.config.from_mapping(os.environ)
-from tools import *
 
 CORS(app)
 
-# logging.basicConfig(level=logging.DEBUG ,format='%(levelname)s:%(message)s')
-#
 def init_logging():
     """Initializes logging."""
     if LOG_COLOR:
@@ -42,26 +40,62 @@ def replace():
         hash = request.args.get('hash')
         logging.debug('Hash is %s'%hash)
         r = Manager(hash)
-        try:
-            r.download_ipfs_document()
-            r.replace(request.json)
-            r.doc_pdf()
 
-            return send_file('%s/%s.pdf'%(CONVERTED_DIR,hash), as_attachment=True), 200
+        r.download_ipfs_document()
+        r.replace(request.json)
+        r.doc_pdf()
 
-        except FileNotFoundError as e:
-            return jsonify({"code": 500, "message": str(e)}), 500
-        except Exception as e:
-            return jsonify({"code": 500, "message": str(e)}), 500
+        return send_file('%s/%s.pdf'%(CONVERTED_DIR,hash), as_attachment=True), 200
+    else:
+        abort(400)
 
 @app.errorhandler(403)
 def forbidden(ex):
+    logging.error('Server Error: %s', ex.description)
     return jsonify({"code": 403, "message": ex.description}), 403
+
+@app.errorhandler(400)
+def forbidden(ex):
+    logging.error('Server Error: %s', ex.description)
+    return jsonify({"code": 400, "message": ex.description}), 400
 
 
 @app.errorhandler(404)
 def not_found(ex):
+    logging.error('Server Error: %s', ex.description)
     return jsonify({"code": 404, "message": ex.description}), 404
+
+@app.errorhandler(405)
+def not_found(ex):
+    logging.error('Server Error: %s', ex.description)
+    return jsonify({"code": 405, "message": ex.description}), 405
+
+@app.errorhandler(500)
+def internal_server_error(ex):
+    logging.error('Server Error: %s', ex.description)
+    return jsonify({"code": 404, "message": ex.description}), 500
+
+
+@app.errorhandler(Exception)
+def handle_error(e):
+    code = 500
+    message =''
+    if isinstance(e, FileNotFoundError):
+        code = 404
+        message = str(e)
+    elif isinstance(e, FileExistsError):
+        message = str(e)
+        code = 403
+    elif isinstance(e, IOError):
+        message = str(e)
+        code = 500
+    elif isinstance(e, HTTPException):
+        message = e.description
+        code = e.code
+
+    logging.error('Server Error: %s', message)
+    return jsonify({"code": code, "message": message}),code
+
 
 if __name__ == '__main__':
     app.run(debug=True)

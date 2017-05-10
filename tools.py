@@ -1,7 +1,6 @@
 #!/usr/bin/python
 from exceptions import *
 from docx import Document
-from requests import get
 import re
 from subprocess import call
 from config import *
@@ -64,15 +63,11 @@ class Manager:
     def download_ipfs_document(self):
         if not self._is_document_pinned(): raise AccessDeniedException('You don\'t have permission to access.')
 
-        url = '%s/%s'%(IPFS_NODE_URL,self.hash)
+        content = self.ipfs.cat(self.hash)
         file_name = "%s/%s.docx"%(DOWNLOADS_DIR,self.hash)
         logging.debug('start Download IPFS document: %s'%self.hash)
         with open(file_name , "wb") as file:
             logging.debug('Save IPFS document in file: %s'%file_name)
-            response = get(url)
-            if response.status_code == 200:
-                file.write(response.content)
-            else:
-                raise NotFoundException("Hash %s Not Found in ipfs"%self.hash)
+            file.write(content)
 
 

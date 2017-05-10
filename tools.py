@@ -10,16 +10,6 @@ class DocumentReplace:
     def __init__(self , doc):
         self.doc = doc
 
-    def paragraph_search(self, text_value):
-        result = False
-        para_regex = re.compile(text_value)
-        for paragraph in self.doc.paragraphs:
-            if paragraph.text:
-                if para_regex.search(paragraph.text):
-                    result = True
-        return result
-
-
     def paragraph_replace(self, tags_dic):
         pattern = re.compile('|'.join(tags_dic.keys()))
         result = [pattern.sub(lambda m:tags_dic[m.group(0)], paragraph.text) if paragraph.text else None for paragraph in self.doc.paragraphs]

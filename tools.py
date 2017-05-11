@@ -22,7 +22,7 @@ class DocumentReplace:
 class Manager:
     def __init__(self, hash):
         self.hash = hash
-        self.ipfs = ipfsapi.connect(SERVER_IP, IPFS_PORT)
+        self.ipfs = ipfsapi.connect(SERVER_IP, IPFS_PORT , timeout=IPFS_CONNECT_TIMEOUT)
 
     def replace(self , replace_tags = None):
         path = '%s/%s.docx'%(DOWNLOADS_DIR,self.hash)

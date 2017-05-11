@@ -19,9 +19,16 @@ class ManagetTest(unittest.TestCase):
           "{court-city}":"Berlin",
         })
 
-
-    # def test_doc_pdf(self):
-    #     self.m.doc_pdf()
+    # def test_replace_api(self):
+    #     d = {
+    #         "{company}": "Fifth Force GmbH",
+    #         "{country}": "Germany",
+    #         "{hrb-clause}": "the commercial register of the local court of Berlin under HRB 179357 B",
+    #         "{repo-url}": "git@github.com:Neufund/ESOP.git",
+    #         "{commit-id}": "",
+    #         "{court-city}": "Berlin",
+    #     }
+    #     rv = self.app.post('/api/document', data=d, follow_redirects=True)
 
 if __name__ == '__main__':
     unittest.main()

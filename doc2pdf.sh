@@ -25,12 +25,10 @@ if [ $# -eq 0 ]; then
     exit 1
 fi
 
-for FILE1 in "$@"
-do
-    if [ ! -f $FILE1 ]; then
-        echo $FILE1 "File not found!"
-    else
-       soffice --headless --convert-to pdf $FILE1 --outdir converted
-    fi
-done
+if [ ! -f $1 ]; then
+    echo $1 "File not found!"
+else
+   soffice --headless --convert-to pdf $1 --outdir $2
+fi
+
 exit 0

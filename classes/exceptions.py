@@ -1,4 +1,6 @@
-class MainException(Exception):
+from werkzeug.exceptions import HTTPException
+
+class MainException(HTTPException):
     def __init__(self, message, code=None):
         super(MainException, self).__init__(message)
         self.code =code
@@ -27,3 +29,9 @@ class BashScriptException(MainException):
 
         # Call the base class constructor with the parameters it needs
         super(BashScriptException, self).__init__(message, code)
+
+class UndefinedIPFSHashException(MainException):
+    def __init__(self, message, code = 301):
+
+        # Call the base class constructor with the parameters it needs
+        super(UndefinedIPFSHashException, self).__init__(message, code)

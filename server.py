@@ -1,14 +1,12 @@
 import os ,sys
 import logging
-from exceptions import *
+from classes.exceptions import *
 from flask import Flask, jsonify, request , abort
 from flask import send_file
 from flask_cors import CORS
 from config import *
-from tools import *
-
+from classes.documents import *
 app = Flask(__name__)
-
 
 def init_logging():
     """Initializes logging."""
@@ -26,6 +24,7 @@ def init_logging():
 
     logging.basicConfig(level=LOG_LEVEL,
                         format=LOG_FORMAT, style='{')
+
 def _log_exception():
     exc_type, exc_obj, exc_tb = sys.exc_info()
     file_name = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
@@ -33,22 +32,38 @@ def _log_exception():
         exc_type, file_name, exc_tb.tb_lineno))
 
 
-
 @app.route('/api/document' , methods=['POST'])
 def replace():
+    required = ['hash' , 'type']
+    if len(request.args) != len(required):
+        abort(400 , {'message': 'invalid arguments'})
 
-    if 'hash' in request.args:
-        hash = request.args.get('hash')
-        logging.debug('Hash is %s'%hash)
-        r = Manager(hash)
+    for r in required:
+        if r not in request.args:
+            abort(400, {'message': '%s argument is not missing'})
 
-        r.download_ipfs_document()
-        r.replace(request.json)
-        r.doc_pdf()
+    for r in request.args:
+        if r not in required:
+            abort(400 , {'message': '%s argument is not required'})
 
-        return send_file('%s/%s.pdf'%(CONVERTED_DIR,hash), as_attachment=True), 200
-    else:
-        abort(400)
+    if request.args['type'] not in SUPPORTED_FILE:
+        abort(400, {'message': 'Type should be one of following [ %s ]'%', '.join(SUPPORTED_FILE)})
+
+    hash = request.args['hash']
+    type = request.args['type']
+    logging.debug('Hash is %s'%hash)
+
+    dic = request.json if request.json else {}
+
+    pdf_object = PdfFactory.factory(type)(hash , dic )
+
+    pdf_file = '%s/%s.pdf'%(CONVERTED_DIR,pdf_object.encoded_hash)
+
+    if not os.path.isfile(pdf_file):
+        pdf_object.generate()
+
+    return send_file(pdf_file, as_attachment=True), 200
+
 
 @app.errorhandler(403)
 def forbidden(ex):
@@ -84,7 +99,7 @@ def handle_error(e):
     if isinstance(e, MainException):
         code = e.get_code()
         message = e.get_message()
-
+    print (e)
     _log_exception()
     return jsonify({"code": code, "message": message}),code
 

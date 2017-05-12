@@ -11,6 +11,13 @@
 - Specify the folder that you need to download the document into it from `config.py` DOWNLOADS_DIR
 - Specify the folder that you need to put the replaced files into it from `config.py` CONVERTED_DIR
 
-- Run the server using uwisgi configuration.
+# Note: Make sure that you have installed all the dependencies.
+
+# How to run
+- `python -m server` or is case if uwisgi the configuration is uwisgi.ini 
+
+# How to test
+`python -m unittest`
 
 # TODO: Docker installation
+

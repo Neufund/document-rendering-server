@@ -34,6 +34,5 @@ class WordDocumentTest(unittest.TestCase):
         assert os.path.isfile(doc_object.pdf_file_path)
 
 
-
 if __name__ == '__main__':
     unittest.main()

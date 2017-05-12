@@ -4,3 +4,4 @@ python-docx
 requests
 ipfsapi
 pdfkit
+python-magic

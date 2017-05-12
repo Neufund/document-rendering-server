@@ -46,8 +46,8 @@ def replace():
         if r not in required:
             abort(400 , {'message': '%s argument is not required'})
 
-    if request.args['type'] not in SUPPORTED_FILE:
-        abort(400, {'message': 'Type should be one of following [ %s ]'%', '.join(SUPPORTED_FILE)})
+    if request.args['type'] not in list(SUPPORTED_FILE.values()):
+        abort(400, {'message': 'Type should be one of following [ %s ]'%', '.join(list(SUPPORTED_FILE.values()))})
 
     hash = request.args['hash']
     type = request.args['type']
@@ -55,9 +55,9 @@ def replace():
 
     dic = request.json if request.json else {}
 
-    pdf_object = PdfFactory.factory(type)(hash , dic )
+    pdf_object = PdfFactory.factory(type)(hash, dic)
 
-    pdf_file = '%s/%s.pdf'%(CONVERTED_DIR,pdf_object.encoded_hash)
+    pdf_file = '%s/%s.pdf'%(CONVERTED_DIR, pdf_object.encoded_hash)
 
     if not os.path.isfile(pdf_file):
         pdf_object.generate()
@@ -95,11 +95,11 @@ def internal_server_error(ex):
 @app.errorhandler(Exception)
 def handle_error(e):
     code = 500
-    message ='Server Error'
+    message = str(e)
     if isinstance(e, MainException):
         code = e.get_code()
         message = e.get_message()
-    print (e)
+
     _log_exception()
     return jsonify({"code": code, "message": message}),code
 

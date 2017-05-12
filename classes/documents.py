@@ -10,7 +10,9 @@ import pdfkit
 
 
 class PdfFactory(object):
-    def factory(type ):
+    def factory( type ):
+
+
         if type =="html": return HtmlDocument
         if type =="docx": return WordDocument
 
@@ -45,7 +47,7 @@ class WordDocument(IPFS, PdfFactory):
         logging.info("start pdf:%s"%self.converted_file_path)
 
         if os.path.isfile(self.converted_file_path):
-            script =  '../doc2pdf.sh %s %s'%(self.converted_file_path , CONVERTED_DIR)
+            script =  './doc2pdf.sh %s %s'%(self.converted_file_path , CONVERTED_DIR)
             result = call(script, shell=True )
             if result == 0:
                 logging.info("PDF file saved successfully")
@@ -60,6 +62,9 @@ class WordDocument(IPFS, PdfFactory):
     # This is the method that will called by the factory.
     def generate(self):
         self.download_ipfs_document()
+        if self.extension != "docx":
+            raise Exception("This file is not html")
+
         self._replace_tags()
         self._doc_pdf()
 
@@ -83,6 +88,9 @@ class HtmlDocument(IPFS,PdfFactory):
     # This is the method that will called by the factory.
     def generate(self):
         self.download_ipfs_document()
+        if self.extension != "html":
+            raise UnKnownFileTypeException("This file is not html")
+
         self._replace_tags()
 
         pdfkit.from_file(self.converted_file_path, self.pdf_file_path)

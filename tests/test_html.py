@@ -10,8 +10,10 @@ class HtmlDocumentTest(unittest.TestCase):
               "Germany":"Country"
         }
         self.pdf_object = PdfFactory.factory('html')
-
         self.doc_object = self.pdf_object(self.hash, self.replace_tags)
+
+    def test_ipfs(self):
+        self.doc_object.ipfs.file_ls('QmQEGujQefenqt53Au82gPf5yjEbwzea5UJMxswJqmwtHF')
 
     def test_download_ipfs(self):
         self.doc_object.download_ipfs_document()
@@ -25,7 +27,16 @@ class HtmlDocumentTest(unittest.TestCase):
         self.doc_object.generate()
         assert os.path.isfile(self.doc_object.pdf_file_path)
 
+    def test_wrong_hash(self):
+        hash = "QmQEGujQefenqt53Au82gPf5yjEbwzea5UJMxswJqmwtHF"  # html hash
 
+        doc_object = self.pdf_object(hash, self.replace_tags)
+        try:
+            doc_object.generate()
+        except UnSupportedFileException as e:
+            pass
+        else:
+           self.fail('ExpectedException not raised')
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,6 +1,4 @@
-from werkzeug.exceptions import HTTPException
-
-class MainException(HTTPException):
+class MainException(Exception):
     def __init__(self, message, code=None):
         super(MainException, self).__init__(message)
         self.code =code
@@ -17,6 +15,16 @@ class AccessDeniedException(MainException):
 
         # Call the base class constructor with the parameters it needs
         super(AccessDeniedException, self).__init__(message , code)
+
+class UnSupportedFileException(MainException):
+    def __init__(self, message, code = 403):
+        # Call the base class constructor with the parameters it needs
+        super(UnSupportedFileException, self).__init__(message , code)
+
+class UnKnownFileTypeException(MainException):
+    def __init__(self, message, code = 403):
+        # Call the base class constructor with the parameters it needs
+        super(UnKnownFileTypeException, self).__init__(message , code)
 
 class NotFoundException(MainException):
     def __init__(self, message, code = 404):

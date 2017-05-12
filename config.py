@@ -14,6 +14,9 @@ LOG_COLOR=True
 
 SERVER_IP = "10.15.1.12"
 IPFS_PORT = 5001
-IPFS_CONNECT_TIMEOUT = 10
+IPFS_CONNECT_TIMEOUT = 20
 
-SUPPORTED_FILE= ['docx' , 'html']
+SUPPORTED_FILE= {
+    'word' : 'docx',
+    'html' :'html'
+}

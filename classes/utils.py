@@ -19,7 +19,7 @@ class DocumentReplace:
 
 class IPFS:
     def __init__(self, hash_key , replace_tags = None):
-        self.ipfs = ipfsapi.connect(SERVER_IP, IPFS_PORT, timeout=IPFS_CONNECT_TIMEOUT)
+        self.ipfs = ipfsapi.connect(SERVER_IP, IPFS_PORT, timeout=(IPFS_TRANSMIT_CONNECT_TIMEOUT,IPFS_CONNECT_TIMEOUT))
 
         self.hash = hash_key
         self.check_valid_hash_key()

@@ -1,7 +1,7 @@
 import unittest , os
 from classes.utils import *
 from classes.documents import *
-
+from server import init_logging
 class HtmlDocumentTest(unittest.TestCase):
     def setUp(self):
         self.hash = "QmQvrXFVTbPYHVLRSqPfnCPaVizhBomEKvFgAPB8Cd2B9x"
@@ -11,6 +11,8 @@ class HtmlDocumentTest(unittest.TestCase):
         }
         self.pdf_object = PdfFactory.factory('html')
         self.doc_object = self.pdf_object(self.hash, self.replace_tags)
+
+        init_logging()
 
     def test_ipfs(self):
         self.doc_object.ipfs.file_ls('QmQEGujQefenqt53Au82gPf5yjEbwzea5UJMxswJqmwtHF')
@@ -32,9 +34,9 @@ class HtmlDocumentTest(unittest.TestCase):
 
         doc_object = self.pdf_object(hash, self.replace_tags)
         try:
-            doc_object.generate()
+            doc_object.generate(doc_object.pdf_file_path)
         except UnSupportedFileException as e:
-            pass
+            self.fail(str(e))
         else:
            self.fail('ExpectedException not raised')
 

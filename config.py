@@ -2,9 +2,9 @@ import os
 
 CURRENT_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 
-DOWNLOADS_DIR = "/Users/mostafa/Documents/dev/neufund/replace_tags/downloads"
-CONVERTED_DIR = "/Users/mostafa/Documents/dev/neufund/replace_tags/converted"
+CONVERTED_DIR = "%s/converted"%CURRENT_DIRECTORY
 
+TEMP_DIR = '/develop/tmp'
 
 IPFS_NODE_URL = "https://ipfs.io/ipfs"
 

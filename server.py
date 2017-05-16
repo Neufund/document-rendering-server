@@ -1,6 +1,7 @@
 import os ,sys
 import logging
 from classes.exceptions import *
+from config import *
 from flask import Flask, jsonify, request , abort
 from flask import send_file
 from flask_cors import CORS

@@ -8,9 +8,12 @@ TEMP_DIR = '/tmp'
 
 IPFS_NODE_URL = "https://ipfs.io/ipfs"
 
-LOG_LEVEL = 'info'
+LOG_LEVEL = 'INFO'
 LOG_FORMAT = '{asctime}#{levelname}#{filename}#{funcName}#{lineno}#{message}'
 LOG_COLOR = True
+
+SERVER_IP = ''
+IPFS_PORT = ''
 
 IPFS_CONNECT_TIMEOUT = 10
 IPFS_TRANSMIT_CONNECT_TIMEOUT = 10

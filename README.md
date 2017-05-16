@@ -19,5 +19,6 @@
 # How to test
 `python -m unittest`
 
-# TODO: Docker installation
-
+# Docker installation
+once you have `docker-composer.yml`
+`docker-compose up --build`

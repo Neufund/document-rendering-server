@@ -1,16 +1,19 @@
-import os ,sys
-import logging
+#!/usr/bin/env python
+from flask import Flask, jsonify, request, abort
+import os, sys
+import logging, traceback
+
 from classes.exceptions import *
 from config import *
-from flask import Flask, jsonify, request , abort
 from flask import send_file
 from flask_cors import CORS
 
 from classes.documents import *
-app = Flask(__name__)
 
+app = Flask(__name__)
 app.config.from_pyfile('config.py')
 app.config.from_mapping(os.environ)
+
 
 def init_logging():
     """Initializes logging."""
@@ -29,18 +32,20 @@ def init_logging():
     logging.basicConfig(level=LOG_LEVEL,
                         format=LOG_FORMAT, style='{')
 
+
 def _log_exception():
     exc_type, exc_obj, exc_tb = sys.exc_info()
     file_name = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+    # traceback.print_exc()
     logging.error("Exception type#{}#{}#{}".format(
         exc_type, file_name, exc_tb.tb_lineno))
 
 
-@app.route('/api/document' , methods=['POST'])
+@app.route('/api/document', methods=['POST'])
 def replace():
-    required = ['hash' , 'type']
+    required = ['hash', 'type']
     if len(request.args) != len(required):
-        abort(400 , {'message': 'invalid arguments'})
+        abort(400, {'message': 'invalid arguments'})
 
     for r in required:
         if r not in request.args:
@@ -48,20 +53,20 @@ def replace():
 
     for r in request.args:
         if r not in required:
-            abort(400 , {'message': '%s argument is not required'})
+            abort(400, {'message': '%s argument is not required'})
 
     if request.args['type'] not in list(SUPPORTED_FILE.values()):
-        abort(400, {'message': 'Type should be one of following [ %s ]'%', '.join(list(SUPPORTED_FILE.values()))})
+        abort(400, {'message': 'Type should be one of following [ %s ]' % ', '.join(list(SUPPORTED_FILE.values()))})
 
     hash = request.args['hash']
     type = request.args['type']
-    logging.debug('Hash is %s'%hash)
+    logging.debug('Hash is %s' % hash)
 
     dic = request.json if request.json else {}
 
     pdf_object = PdfFactory.factory(type)(hash, dic)
 
-    pdf_file = '%s/%s.pdf'%(CONVERTED_DIR, pdf_object.encoded_hash)
+    pdf_file = '%s/%s.pdf' % (CONVERTED_DIR, pdf_object.encoded_hash)
 
     if not os.path.isfile(pdf_file):
         pdf_object.generate()
@@ -74,6 +79,7 @@ def forbidden(ex):
     _log_exception()
     return jsonify({"code": 403, "message": ex.description}), 403
 
+
 @app.errorhandler(400)
 def forbidden(ex):
     _log_exception()
@@ -85,10 +91,12 @@ def not_found(ex):
     _log_exception()
     return jsonify({"code": 404, "message": ex.description}), 404
 
+
 @app.errorhandler(405)
 def not_found(ex):
     _log_exception()
     return jsonify({"code": 405, "message": ex.description}), 405
+
 
 @app.errorhandler(500)
 def internal_server_error(ex):
@@ -105,7 +113,7 @@ def handle_error(e):
         message = e.get_message()
 
     _log_exception()
-    return jsonify({"code": code, "message": message}),code
+    return jsonify({"code": code, "message": message}), code
 
 
 if __name__ == '__main__':

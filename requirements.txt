@@ -5,3 +5,4 @@ requests
 ipfsapi
 pdfkit
 python-magic
+uwsgi

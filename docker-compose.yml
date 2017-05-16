@@ -1,8 +1,9 @@
 version: '2'
 services:
-  private-key-server:
+  replace_tags:
     build: .
     ports:
       - "5000:5000"
-    env_file:
-      - config.env
+    environment:
+      - SERVER_IP=10.15.1.12
+      - IPFS_PORT=5001

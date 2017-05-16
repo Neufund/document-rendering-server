@@ -74,6 +74,7 @@ target/
 
 # pyenv
 .python-version
+pyenv
 
 # celery beat schedule file
 celerybeat-schedule
@@ -93,3 +94,4 @@ ENV/
 .DS_Store
 .idea
 .html
+docker-compose.yml

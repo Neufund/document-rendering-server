@@ -4,9 +4,12 @@ from classes.exceptions import *
 from flask import Flask, jsonify, request , abort
 from flask import send_file
 from flask_cors import CORS
-from config import *
+
 from classes.documents import *
 app = Flask(__name__)
+
+app.config.from_pyfile('config.py')
+app.config.from_mapping(os.environ)
 
 def init_logging():
     """Initializes logging."""

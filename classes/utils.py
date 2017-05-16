@@ -10,7 +10,6 @@ from hashlib import sha1
 import tempfile
 
 
-
 class DocumentReplace:
     def __init__(self, doc):
         self.doc = doc
@@ -41,22 +40,25 @@ class IPFS:
 
         self.temp_file = None
 
+    # Check if hash is valid
     def check_valid_hash_key(self):
         if not isinstance(self.hash, str):
             raise UndefinedIPFSHashException('Invalid Ipfs Hash')
 
+    # Check if the document is pinned in the ipfs server
     def _is_document_pinned(self):
         pin_files = self.ipfs.pin_ls()
         return self.hash in list(pin_files['Keys'].keys())
 
+    # Download ipfs dowcument into temp folder
+    # return the function if the file exists
     def download_ipfs_temp(self):
 
         # IF the temp file exists no need to download file
         if os.path.exists('%s/%s' % (TEMP_DIR, self.encoded_hash)):
             self.temp_file = '%s/%s' % (TEMP_DIR, self.encoded_hash)
-            logging.info("Skip installing from IPFS, file exists in cache as %s/%s"% (TEMP_DIR, self.encoded_hash))
+            logging.info("Skip installing from IPFS, file exists in cache as %s/%s" % (TEMP_DIR, self.encoded_hash))
             return None
-
 
         if not self._is_document_pinned():
             raise AccessDeniedException('You don\'t have permission to access.')
@@ -86,7 +88,3 @@ class IPFS:
 
         if self.extension != checked_file_extension:
             raise UnSupportedFileException("This document is %s and you assume it as %s" % (file_type, self.extension))
-
-        return None
-
-

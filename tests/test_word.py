@@ -19,12 +19,13 @@ class WordDocumentTest(unittest.TestCase):
         self.doc_object = self.pdf_object(self.hash, self.replace_tags)
 
     def test_download_ipfs(self):
-        self.doc_object.download_ipfs_document()
-        assert os.path.isfile(self.doc_object.downloaded_file_path)
+        self.doc_object.download_ipfs_temp()
+        assert self.doc_object.temp_file != None
 
     def test_replace_tags(self):
+        self.doc_object.download_ipfs_temp()
         self.doc_object._replace_tags()
-        assert os.path.isfile(self.doc_object.converted_file_path)
+        assert self.doc_object.temp_file != None
 
     def test_all_process(self):
         doc_object = self.pdf_object(self.hash, self.replace_tags)

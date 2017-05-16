@@ -1,9 +1,0 @@
-version: '2'
-services:
-  replace_tags:
-    build: .
-    ports:
-      - "5000:5000"
-    environment:
-      - SERVER_IP=10.15.1.12
-      - IPFS_PORT=5001

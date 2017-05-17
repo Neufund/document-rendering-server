@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 from classes.exceptions import *
-from classes.utils import DocumentReplace
 from docx import Document
 from subprocess import call
 from config import *
@@ -10,8 +9,12 @@ import pdfkit
 
 class PdfFactory(object):
     def factory(type):
-        if type == "html": return HtmlDocument
-        if type == "docx": return WordDocument
+        if type == "html":
+            return HtmlDocument
+        elif type == "word":
+            return WordDocument
+        else:
+            raise UnSupportedFileException("un supported extension")
 
     factory = staticmethod(factory)
 
@@ -29,26 +32,36 @@ def skip_file_exists(func):
     return checker
 
 
-class WordDocument(IPFS):
+class WordDocument(IPFSDocument):
     def __init__(self, hash_key, replace_tags=None):
-        self.extension = "docx"
-        super(WordDocument, self).__init__(hash_key=hash_key, replace_tags=replace_tags)
+        super(WordDocument, self).__init__(hash_key=hash_key, replace_tags=replace_tags, extension="word")
+        self.temp_file = None
+
+    def paragraph_replace(self, tags_dic):
+        pattern = re.compile('|'.join(tags_dic.keys()))
+        for paragraph in self.doc.paragraphs:
+            if paragraph.text:
+                paragraph.text = pattern.sub(lambda m: tags_dic[m.group(0)], paragraph.text)
 
     def _replace_tags(self):
         replace_tags = self.replace_tags
+        print(self.IPFS_file)
+        if os.path.exists(self.IPFS_file):
+            logging.debug('start open the document: %s' % self.IPFS_file)
 
-        if os.path.exists(self.temp_file):
-            logging.debug('start open the document: %s' % self.temp_file)
-
-            doc = Document(self.temp_file)
-            replace = DocumentReplace(doc)
+            self.doc = Document(self.IPFS_file)
             if replace_tags:
-                logging.debug('start replacing tags: %s' % self.temp_file)
+                logging.debug('start replacing tags: %s' % self.IPFS_file)
                 # for key in replace_tags:
-                replace.paragraph_replace(replace_tags)
+                self.paragraph_replace(replace_tags)
+
+            temp = tempfile.NamedTemporaryFile(prefix='document_word_', dir=TEMP_DIR, delete=False)
+            with temp as f:
+                self.temp_file = f.name  # Temporary file name
+            logging.debug('temporary file with tags replaces in %s' % self.temp_file)
 
             # Replace the downloaded temp file with the new document with tags.
-            doc.save(self.temp_file)
+            self.doc.save(self.temp_file)
 
             logging.debug('file has been saved in: %s/%s' % (CONVERTED_DIR, self.encoded_hash))
         else:
@@ -69,25 +82,22 @@ class WordDocument(IPFS):
             else:
                 err_message = "Bash script error in saving PDF file with hash %s" % self.hash
                 logging.error(err_message)
+                os.remove(self.temp_file)
                 raise BashScriptException(err_message)
         else:
+            os.remove(self.temp_file)
             raise NotFoundException(".docx File %s.%s not found" % (self.encoded_hash, self.extension))
 
     # Rename the temp file and the converted file as well, to use as cache files.
     def _rename_files(self):
 
         # rename the replaced document into encoded hash name
-        os.rename(self.temp_file, '%s/%s' % (TEMP_DIR, self.encoded_hash))
         temp_file_name = os.path.basename(os.path.normpath(self.temp_file))
-
         # rename the pdf file into encoded hash
         os.rename('%s/%s.pdf' % (CONVERTED_DIR, temp_file_name), '%s/%s.pdf' % (CONVERTED_DIR, self.encoded_hash))
 
     @skip_file_exists
     def generate(self):
-
-        if self.extension != "docx":
-            raise Exception("This file is not word document")
 
         # download ipfs document if not exists before in the temp folder
         self.download_ipfs_temp()
@@ -98,21 +108,20 @@ class WordDocument(IPFS):
         # convert the replaced document file into pdf, then save it into converted folder
         self._doc_pdf()
 
-        # rename the replaced doc file into encoded hash, to use in in cache
         # rename the pdf file in converted folder into encoded hash to use in in cache
         self._rename_files()
 
+        # Remove the temp file that replaced the tags
+        os.remove(self.temp_file)
 
-class HtmlDocument(IPFS):
+
+class HtmlDocument(IPFSDocument):
     def __init__(self, hash_key, replace_tags=None):
-
-        self.extension = "html"
-        super(HtmlDocument, self).__init__(hash_key=hash_key, replace_tags=replace_tags)
+        super(HtmlDocument, self).__init__(hash_key=hash_key, replace_tags=replace_tags, extension="html")
 
     def _replace_tags(self):
-
         # open html file from temp folder
-        with open(self.temp_file, "r") as file:
+        with open(self.IPFS_file, "r") as file:
             data = file.read()
 
         # check if there's tags needs to replace
@@ -125,15 +134,8 @@ class HtmlDocument(IPFS):
     def _doc_pdf(self, string_html, pdf_folder):
         pdfkit.from_string(string_html, pdf_folder)
 
-    # Rename the temp file to use as cache files.
-    def _rename_files(self):
-        os.rename(self.temp_file, '%s/%s' % (TEMP_DIR, self.encoded_hash))
-
     @skip_file_exists
     def generate(self):
-        if self.extension != "html":
-            raise UnKnownFileTypeException("This file is not html")
-
         # download ipfs document if not exists before in the temp folder
         self.download_ipfs_temp()
 
@@ -142,6 +144,3 @@ class HtmlDocument(IPFS):
 
         # convert the result in variable data into pdf file, save it into converted folder
         self._doc_pdf(str(data), self.pdf_file_path)
-
-        # rename the pdf file in converted folder into encoded hash to use in in cache
-        self._rename_files()

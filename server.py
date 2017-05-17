@@ -55,8 +55,8 @@ def replace():
         if r not in required:
             abort(400, {'message': '%s argument is not required'})
 
-    if request.args['type'] not in list(SUPPORTED_FILE.values()):
-        abort(400, {'message': 'Type should be one of following [ %s ]' % ', '.join(list(SUPPORTED_FILE.values()))})
+    if request.args['type'] not in SUPPORTED_FILE:
+        abort(400, {'message': 'Type should be one of following [ %s ]' % ', '.join(SUPPORTED_FILE)})
 
     hash = request.args['hash']
     type = request.args['type']
@@ -68,8 +68,7 @@ def replace():
 
     pdf_file = '%s/%s.pdf' % (CONVERTED_DIR, pdf_object.encoded_hash)
 
-    if not os.path.isfile(pdf_file):
-        pdf_object.generate()
+    pdf_object.generate()
 
     return send_file(pdf_file, as_attachment=True), 200
 
@@ -101,7 +100,7 @@ def not_found(ex):
 @app.errorhandler(500)
 def internal_server_error(ex):
     logging.error('Server Error: %s', ex.description)
-    return jsonify({"code": 404, "message": ex.description}), 500
+    return jsonify({"code": 500, "message": ex.description}), 500
 
 
 @app.errorhandler(Exception)

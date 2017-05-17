@@ -7,25 +7,25 @@ class WordDocumentTest(unittest.TestCase):
     def setUp(self):
         self.hash = "QmQEGujQefenqt53Au82gPf5yjEbwzea5UJMxswJqmwtHF"
         self.replace_tags = {
-            "company": "Fifth Force GmbH",
-            "country": "Germany",
-            "hrb-clause": "the commercial register of the local court of Berlin under HRB 179357 B",
-            "repo-url": "git@github.com:Neufund/ESOP.git",
-            "commit-id": "",
-            "court-city": "Berlin"
+            "{company}": "Fifth Force GmbH",
+            "{country}": "Germany",
+            "{hrb-clause}": "the commercial register of the local court of Berlin under HRB 179357 B",
+            "{repo-url}": "git@github.com:Neufund/ESOP.git",
+            "{commit-id}": "",
+            "{court-city}": "Berlin"
         }
-        self.pdf_object = PdfFactory.factory('docx')
+        self.pdf_object = PdfFactory.factory('word')
 
         self.doc_object = self.pdf_object(self.hash, self.replace_tags)
 
     def test_download_ipfs(self):
         self.doc_object.download_ipfs_temp()
-        assert self.doc_object.temp_file != None
+        assert self.doc_object.IPFS_file is not None
 
     def test_replace_tags(self):
         self.doc_object.download_ipfs_temp()
         self.doc_object._replace_tags()
-        assert self.doc_object.temp_file != None
+        assert self.doc_object.temp_file is not None
 
     def test_all_process(self):
         doc_object = self.pdf_object(self.hash, self.replace_tags)

@@ -1,0 +1,15 @@
+version: '2'
+services:
+  render-pdf:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - SERVER_IP=${IPFS_HOST}
+      - IPFS_PORT=${IPFS_PORT}
+    volumes:
+      - tmp:/develop/tmp
+      - converted:/app/converted
+volumes:
+  tmp:
+  converted:

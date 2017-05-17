@@ -94,4 +94,3 @@ ENV/
 .DS_Store
 .idea
 .html
-docker-compose.yml

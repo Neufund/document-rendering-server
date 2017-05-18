@@ -13,16 +13,3 @@ services:
 volumes:
   tmp:
   converted:
-
-version: '2'
-services:
-  render_pdf:
-    evn_file: stage/render_pdf.env
-    ports:
-      - "5000:5000"
-    volumes:
-      - tmp:/develop/tmp
-      - converted:/app/converted
-volumes:
-  tmp:
-  converted:

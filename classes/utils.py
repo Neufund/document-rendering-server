@@ -30,7 +30,7 @@ class IPFSDocument:
         self.check_valid_hash_key()
 
         self.replace_tags = replace_tags if replace_tags else {}
-        self.encoded_hash = sha1(json.dumps(self.replace_tags, sort_keys=True).encode('utf-8')).hexdigest()
+        self.encoded_hash = sha1((hash_key+json.dumps(self.replace_tags, sort_keys=True)).encode('utf-8')).hexdigest()
 
         self.converted_file_path = '%s/%s.%s' % (CONVERTED_DIR, self.encoded_hash, self.extension)
         self.pdf_file_path = '%s/%s.pdf' % (CONVERTED_DIR, self.encoded_hash)

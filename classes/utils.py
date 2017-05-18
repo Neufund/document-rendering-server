@@ -59,6 +59,7 @@ class IPFSDocument:
         if os.path.exists('%s/%s' % (TEMP_DIR, self.hash)):
             self.IPFS_file = '%s/%s' % (TEMP_DIR, self.hash)
             logging.info("Skip installing from IPFS, file exists in cache as %s/%s" % (TEMP_DIR, self.IPFS_file))
+            self.check_file_extention()
             return None
 
         if not self._is_document_pinned():
@@ -71,6 +72,13 @@ class IPFSDocument:
             f.write(content)
             self.IPFS_file = f.name  # Temporary file name
 
+        self.check_file_extention()
+        # Rename the IPFS file to hash
+        IPFS_file_name = '%s/%s' % (TEMP_DIR, self.hash)
+        os.rename(self.IPFS_file, IPFS_file_name)
+        self.IPFS_file = IPFS_file_name
+
+    def check_file_extention(self):
         file_type = magic.from_file(self.IPFS_file)
 
         logging.debug("File type is %s" % file_type)
@@ -87,8 +95,3 @@ class IPFSDocument:
         if self.extension != checked_file_extension[0]:
             os.remove(self.IPFS_file)
             raise UnSupportedFileException("This document is %s and you assume it as %s" % (file_type, self.extension))
-
-        # Rename the IPFS file to hash
-        IPFS_file_name = '%s/%s' % (TEMP_DIR, self.hash)
-        os.rename(self.IPFS_file, IPFS_file_name)
-        self.IPFS_file = IPFS_file_name

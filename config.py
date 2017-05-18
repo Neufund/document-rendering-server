@@ -18,3 +18,12 @@ IPFS_CONNECT_TIMEOUT = 10
 IPFS_TRANSMIT_CONNECT_TIMEOUT = 10
 
 SUPPORTED_FILE = ['word', 'html']
+
+HTML_PDF_OPTIONS= {
+    'page-size': 'A4',
+    'margin-top': '0.75in',
+    'margin-right': '0.75in',
+    'margin-bottom': '0.75in',
+    'margin-left': '0.75in',
+    # 'dpi': 300,
+}

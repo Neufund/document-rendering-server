@@ -121,6 +121,7 @@ class HtmlDocument(IPFSDocument):
 
     def _replace_tags(self):
         # open html file from temp folder
+        # with open(self.IPFS_file, "r" , encoding='utf-8', ) as file:
         with open(self.IPFS_file, "r") as file:
             data = file.read()
 
@@ -132,7 +133,7 @@ class HtmlDocument(IPFSDocument):
         return data
 
     def _doc_pdf(self, string_html, pdf_folder):
-        pdfkit.from_string(string_html, pdf_folder)
+        pdfkit.from_string(string_html, pdf_folder, options=HTML_PDF_OPTIONS)
 
     @skip_file_exists
     def generate(self):

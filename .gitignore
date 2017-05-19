@@ -94,5 +94,5 @@ ENV/
 .DS_Store
 .idea
 .html
-
+docker-compose.yml
 ipfs_cache/*

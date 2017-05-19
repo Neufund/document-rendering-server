@@ -133,7 +133,7 @@ class HtmlDocument(IPFSDocument):
         return data
 
     def _doc_pdf(self, string_html, pdf_folder):
-        pdfkit.from_string(string_html, pdf_folder, options=HTML_PDF_OPTIONS)
+        pdfkit.from_string(string_html, pdf_folder, options=OPTIONS[self.extension])
 
     @skip_file_exists
     def generate(self):

@@ -11,15 +11,18 @@ import tempfile
 
 
 def ipfs_connect(func):
-    def connect(self):
+    def connection(self):
+        logging.debug("Start connection with IPFS")
+
         if self.ipfs is None:
-            logging.debug("Start connection with IPFS")
             self.ipfs = ipfsapi.connect(SERVER_IP, IPFS_PORT,
                                         timeout=(IPFS_TRANSMIT_CONNECT_TIMEOUT, IPFS_CONNECT_TIMEOUT))
 
-        return func(self)
+        function_return = func(self)
 
-    return connect
+        return function_return
+
+    return connection
 
 
 class IPFSDocument:
@@ -30,7 +33,7 @@ class IPFSDocument:
         self.check_valid_hash_key()
 
         self.replace_tags = replace_tags if replace_tags else {}
-        self.encoded_hash = sha1((hash_key+json.dumps(self.replace_tags, sort_keys=True)).encode('utf-8')).hexdigest()
+        self.encoded_hash = sha1((hash_key + json.dumps(self.replace_tags, sort_keys=True)).encode('utf-8')).hexdigest()
 
         self.converted_file_path = '%s/%s.%s' % (CONVERTED_DIR, self.encoded_hash, self.extension)
         self.pdf_file_path = '%s/%s.pdf' % (CONVERTED_DIR, self.encoded_hash)
@@ -40,7 +43,7 @@ class IPFSDocument:
     # Check if hash is valid
     def check_valid_hash_key(self):
         if not isinstance(self.hash, str):
-            raise UndefinedIPFSHashException('Invalid Ipfs Hash')
+            raise UndefinedIPFSHashException('Invalid IPFS Hash')
 
     # Check if the document is pinned in the ipfs server
     @ipfs_connect
@@ -51,11 +54,11 @@ class IPFSDocument:
     @ipfs_connect
     def download_ipfs_temp(self):
         """
-        - Download ipfs dowcument into temp folder
+        - Download ipfs document into temp folder
         - return the function if the file exists
         """
 
-        # IF the temp file exists no need to download file
+        # If the temp file exists no need to download file
         if os.path.exists('%s/%s' % (TEMP_DIR, self.hash)):
             self.IPFS_file = '%s/%s' % (TEMP_DIR, self.hash)
             logging.info("Skip installing from IPFS, file exists in cache as %s/%s" % (TEMP_DIR, self.IPFS_file))

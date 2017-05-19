@@ -10,7 +10,6 @@ RUN dpkg -i wkhtmltox-0.12.2.1_linux-jessie-amd64.deb
 #
 RUN apt-get install libreoffice -y
 
-RUN mkdir -p /develop/tmp/
 COPY . /app
 WORKDIR /app
 #

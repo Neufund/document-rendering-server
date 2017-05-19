@@ -8,8 +8,8 @@ services:
       - SERVER_IP=${IPFS_HOST}
       - IPFS_PORT=${IPFS_PORT}
     volumes:
-      - tmp:/develop/tmp
-      - converted:/app/converted
+      - ipfs_cache: /app/ipfs_cache
+      - converted: /app/converted
 volumes:
-  tmp:
+  ipfs_cache:
   converted:

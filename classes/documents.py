@@ -3,7 +3,7 @@ from classes.exceptions import *
 from docx import Document
 from subprocess import call
 from config import *
-from classes.utils import *
+from classes.utils import *  # cant you import only what you need?
 import pdfkit
 
 
@@ -34,20 +34,21 @@ def skip_file_exists(func):
 
 class WordDocument(IPFSDocument):
     def __init__(self, hash_key, replace_tags=None):
+        # why rendering OPTIONS are not passed here? we changed struct to dict to make it easy!
         super(WordDocument, self).__init__(hash_key=hash_key, replace_tags=replace_tags, extension="word")
-        self.temp_file = None
+        self.temp_file = None  # can we have a nicer name like temp_word_file_with_tags_replaced
 
-    def paragraph_replace(self, tags_dic):
+    def paragraph_replace(self, tags_dic):  # internal method, invalid name !!! start with _
         pattern = re.compile('|'.join(tags_dic.keys()))
         for paragraph in self.doc.paragraphs:
             if paragraph.text:
                 paragraph.text = pattern.sub(lambda m: tags_dic[m.group(0)], paragraph.text)
 
     def _replace_tags(self):
-        replace_tags = self.replace_tags
-        print(self.IPFS_file)
+        replace_tags = self.replace_tags  # why store in local variable. replace_tags never changes. why?
+        print(self.IPFS_file)  # what is this??
         if os.path.exists(self.IPFS_file):
-            logging.debug('start open the document: %s' % self.IPFS_file)
+            logging.debug('opening source word document: %s' % self.IPFS_file)
 
             self.doc = Document(self.IPFS_file)
             if replace_tags:
@@ -81,8 +82,8 @@ class WordDocument(IPFSDocument):
                 return self.encoded_hash
             else:
                 err_message = "Bash script error in saving PDF file with hash %s" % self.hash
-                logging.error(err_message)
-                os.remove(self.temp_file)
+                logging.error(err_message) # why log here? @app.errorhandler(Exception) will log this again
+                os.remove(self.temp_file)  # no need to delete it if you do it in finally in generate (see comments there)
                 raise BashScriptException(err_message)
         else:
             os.remove(self.temp_file)
@@ -90,7 +91,6 @@ class WordDocument(IPFSDocument):
 
     # Rename the temp file and the converted file as well, to use as cache files.
     def _rename_files(self):
-
         # rename the replaced document into encoded hash name
         temp_file_name = os.path.basename(os.path.normpath(self.temp_file))
         # rename the pdf file into encoded hash
@@ -99,7 +99,7 @@ class WordDocument(IPFSDocument):
     @skip_file_exists
     def generate(self):
 
-        # download ipfs document if not exists before in the temp folder
+        # download ipfs document if not exists in cache
         self.download_ipfs_temp()
 
         # Replaced tags if exists, save replaced document in temp file
@@ -111,7 +111,7 @@ class WordDocument(IPFSDocument):
         # rename the pdf file in converted folder into encoded hash to use in in cache
         self._rename_files()
 
-        # Remove the temp file that replaced the tags
+        # Remove the temp file that replaced the tags  <- this should ba caught in finally and deleted if exists
         os.remove(self.temp_file)
 
 

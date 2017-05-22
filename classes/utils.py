@@ -12,7 +12,7 @@ import tempfile
 
 def ipfs_connect(func):
     def connection(self):
-        logging.debug("Start connection with IPFS")
+        logging.debug("Start connection with IPFS")  # log connection parameters
 
         if self.ipfs is None:
             self.ipfs = ipfsapi.connect(SERVER_IP, IPFS_PORT,
@@ -40,10 +40,16 @@ class IPFSDocument:
 
         self.IPFS_file = None
 
-    # Check if hash is valid
+    # Check if hash is valid <- use internaly make name as private (start with _)
     def check_valid_hash_key(self):
         if not isinstance(self.hash, str):
-            raise UndefinedIPFSHashException('Invalid IPFS Hash')
+            raise UndefinedIPFSHashException('Invalid IPFS Hash')  # log invalid hash, it should be a parameter of the exception! see below
+
+        # class InvalidUserId(ApiException):
+        #     """user_id sent by backend is invalid, address cannot be generated"""
+        #
+        #     def __init__(self, user_id):
+        #         super().__init__(400, '%s is invalid user id, should be positive int32' % user_id)
 
     # Check if the document is pinned in the ipfs server
     @ipfs_connect
@@ -52,43 +58,44 @@ class IPFSDocument:
         return self.hash in list(pin_files['Keys'].keys())
 
     @ipfs_connect
-    def download_ipfs_temp(self):
+    def download_ipfs_temp(self):  # <- is it ever externally called. I think not so add _ to name
         """
-        - Download ipfs document into temp folder
-        - return the function if the file exists
+        - Download ipfs document into temp folder <- this description is no longer valid, you rename temp file at the end!
+        - return the function if the file exists <- nothing is returned in this method!!
         """
 
         # If the temp file exists no need to download file
         if os.path.exists('%s/%s' % (TEMP_DIR, self.hash)):
             self.IPFS_file = '%s/%s' % (TEMP_DIR, self.hash)
-            logging.info("Skip installing from IPFS, file exists in cache as %s/%s" % (TEMP_DIR, self.IPFS_file))
-            self.check_file_extention()
+            logging.info("Skip downloading from IPFS, file exists in cache as %s/%s" % (TEMP_DIR, self.IPFS_file))
+            # why you check extensions again?? it is check before rename so no wrong file can be provided
+            self.check_file_extension()
             return None
 
         if not self._is_document_pinned():
-            raise AccessDeniedException('You don\'t have permission to access.')
+            raise AccessDeniedException('You don\'t have permission to access.')  # log file
 
         content = self.ipfs.cat(self.hash)
         logging.debug('start Download IPFS document: %s' % self.hash)
-        temp = tempfile.NamedTemporaryFile(prefix='document_', dir=TEMP_DIR, delete=False)
+        temp = tempfile.NamedTemporaryFile(prefix='document_', dir=TEMP_DIR, delete=False) #  temp is already a file-like put it directly in with, f is nto necessary
         with temp as f:
             f.write(content)
             self.IPFS_file = f.name  # Temporary file name
 
-        self.check_file_extention()
+        self.check_file_extension()
         # Rename the IPFS file to hash
         IPFS_file_name = '%s/%s' % (TEMP_DIR, self.hash)
         os.rename(self.IPFS_file, IPFS_file_name)
         self.IPFS_file = IPFS_file_name
 
-    def check_file_extention(self):
+    def check_file_extension(self): # <- use internaly make name as private (start with _) also put it above calling method
         file_type = magic.from_file(self.IPFS_file)
 
         logging.debug("File type is %s" % file_type)
 
         if not file_type:
             os.remove(self.IPFS_file)
-            raise UnKnownFileTypeException("Unknown file")
+            raise UnknownFileTypeException("Unknown file")  # this error message does not say much
 
         checked_file_extension = [file for file in SUPPORTED_FILE if file in file_type.lower()]
         if len(checked_file_extension) == 0:

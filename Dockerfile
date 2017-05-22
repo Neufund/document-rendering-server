@@ -16,11 +16,13 @@ WORKDIR /app
 ADD requirements.txt .
 RUN pip install -r requirements.txt
 ADD uwsgi.ini uwsgi.ini
-#
+
+# do we need this? we run our service in uwsgi
 ENV FLASK_DEBUG 0
 ENV FLASK_HOST 0.0.0.0
 ENV FLASK_APP server
 
+# expose ports in compose file
 EXPOSE 5000
 
 CMD ["uwsgi", "--ini", "uwsgi.ini"]

@@ -8,7 +8,7 @@ class ApiTest(unittest.TestCase):
         self.tester = app.test_client(self)
 
     def test_wrong_endpoint(self):
-        print("Wrong endpoint")
+        print("Wrong endpoint")  # why?? logging will work here and will write to console AFAIK
         response = self.tester.post('/api/document1' )
         self.assertEqual(response.status_code , 404)
 

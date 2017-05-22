@@ -22,3 +22,11 @@
 # Docker installation
 once you have `docker-composer.yml`
 `docker-compose up --build`
+
+
+TO DO in README.md
+
+* explain general algo step by step. you do not mention pinning for example (and why we do it)
+* format of dictionary with tags is not explained
+* provide curl example
+* explain ALL the environment variables used

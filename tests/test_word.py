@@ -18,6 +18,7 @@ class WordDocumentTest(unittest.TestCase):
 
         self.doc_object = self.pdf_object(self.hash, self.replace_tags)
 
+    # do not assume IPFS working, provide test document as file and skip IPFS download
     def test_download_ipfs(self):
         self.doc_object.download_ipfs_temp()
         assert self.doc_object.IPFS_file is not None

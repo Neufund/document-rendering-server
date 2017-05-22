@@ -62,10 +62,12 @@ def replace():
     type = request.args['type']
     logging.debug('Hash is %s' % hash)
 
-    dic = request.json if request.json else {}
+    dic = request.json if request.json else {}  # isn't it equivalent to request.json || {}
 
-    pdf_object = PdfFactory.factory(type)(hash, dic)
+    pdf_object = PdfFactory.factory(type)(hash, dic)  # this is pdf_converter not pdf_object
 
+    # why this is not returned by generate()? then you have just one line here: return send_file(pdf_object.generate(), as_attachment=True), 200
+    # otherwise assuming the path created internally in an object is a very bad idea
     pdf_file = '%s/%s.pdf' % (CONVERTED_DIR, pdf_object.encoded_hash)
 
     pdf_object.generate()

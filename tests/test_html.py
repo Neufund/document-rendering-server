@@ -4,6 +4,7 @@ from classes.documents import *
 from server import init_logging
 
 
+# do not assume IPFS working, provide test document as file and skip IPFS download
 class HtmlDocumentTest(unittest.TestCase):
     def setUp(self):
         self.hash = "QmQvrXFVTbPYHVLRSqPfnCPaVizhBomEKvFgAPB8Cd2B9x"

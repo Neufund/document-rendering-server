@@ -1,10 +1,15 @@
 #!/usr/bin/env python
-from classes.exceptions import *
-from docx import Document
+import logging
+import re
+import tempfile
 from subprocess import call
-from config import *
-from classes.utils import *
+
 import pdfkit
+from docx import Document
+
+from classes.exceptions import *
+from classes.utils import IPFSDocument
+from config import *
 
 
 class PdfFactory(object):
@@ -25,7 +30,7 @@ def skip_file_exists(func):
         file_path = args[0].pdf_file_path
         if os.path.exists(file_path):
             logging.info("The pdf file exists before in path %s" % file_path)
-            return None
+            return file_path
 
         return func(*args)
 
@@ -35,94 +40,94 @@ def skip_file_exists(func):
 class WordDocument(IPFSDocument):
     def __init__(self, hash_key, replace_tags=None):
         super(WordDocument, self).__init__(hash_key=hash_key, replace_tags=replace_tags, extension="word")
-        self.temp_file = None
+        self.temp_word_file_with_tags_replaced = None
 
-    def paragraph_replace(self, tags_dic):
+    def _paragraph_replace(self, tags_dic):
         pattern = re.compile('|'.join(tags_dic.keys()))
         for paragraph in self.doc.paragraphs:
             if paragraph.text:
                 paragraph.text = pattern.sub(lambda m: tags_dic[m.group(0)], paragraph.text)
 
-    def _replace_tags(self):
-        replace_tags = self.replace_tags
-        print(self.IPFS_file)
-        if os.path.exists(self.IPFS_file):
-            logging.debug('start open the document: %s' % self.IPFS_file)
+    def _replace_tags(self, word_file_path):
+        if os.path.exists(word_file_path):
+            logging.debug('opening source word document: %s' % word_file_path)
 
-            self.doc = Document(self.IPFS_file)
-            if replace_tags:
-                logging.debug('start replacing tags: %s' % self.IPFS_file)
+            self.doc = Document(word_file_path)
+            if self.replace_tags:
+                logging.debug('start replacing tags: %s' % word_file_path)
                 # for key in replace_tags:
-                self.paragraph_replace(replace_tags)
+                self._paragraph_replace(self.replace_tags)
 
-            temp = tempfile.NamedTemporaryFile(prefix='document_word_', dir=TEMP_DIR, delete=False)
-            with temp as f:
-                self.temp_file = f.name  # Temporary file name
-            logging.debug('temporary file with tags replaces in %s' % self.temp_file)
+            temp = tempfile.NamedTemporaryFile(prefix='document_word_', dir=IPFS_CACHE_DIR, delete=False)
+            with temp:
+                self.temp_word_file_with_tags_replaced = temp.name  # Temporary file name
+            logging.debug('temporary file with tags replaces in %s' % self.temp_word_file_with_tags_replaced)
 
             # Replace the downloaded temp file with the new document with tags.
-            self.doc.save(self.temp_file)
+            self.doc.save(self.temp_word_file_with_tags_replaced)
 
             logging.debug('file has been saved in: %s/%s' % (CONVERTED_DIR, self.encoded_hash))
+
+            return self.temp_word_file_with_tags_replaced
         else:
             raise NotFoundException("Docx file %s.%s not found" % (self.encoded_hash, self.extension))
 
-    def _doc_pdf(self):
-        logging.info("start pdf:%s" % self.temp_file)
+    def _word_pdf(self, word_file_path):
+        logging.info("start pdf:%s" % word_file_path)
 
-        if os.path.isfile(self.temp_file):
-            script = '%s/doc2pdf.sh %s %s' % (CURRENT_DIRECTORY, self.temp_file, CONVERTED_DIR)
+        if os.path.isfile(word_file_path):
+            script = '%s/doc2pdf.sh "%s" "%s"' % (CURRENT_DIRECTORY, word_file_path, CONVERTED_DIR)
             logging.debug("Execute script %s" % script)
 
             # execute bash script doc2pdf using `soffice` command
             result = call(script, shell=True)
             if result == 0:
                 logging.info("PDF file saved successfully")
-                return self.encoded_hash
+                return self.pdf_file_path
             else:
                 err_message = "Bash script error in saving PDF file with hash %s" % self.hash
-                logging.error(err_message)
-                os.remove(self.temp_file)
                 raise BashScriptException(err_message)
         else:
-            os.remove(self.temp_file)
-            raise NotFoundException(".docx File %s.%s not found" % (self.encoded_hash, self.extension))
+            raise NotFoundException("%s File is not found" % (self.encoded_hash))
 
     # Rename the temp file and the converted file as well, to use as cache files.
     def _rename_files(self):
-
         # rename the replaced document into encoded hash name
-        temp_file_name = os.path.basename(os.path.normpath(self.temp_file))
+        cached_file_name = os.path.basename(os.path.normpath(self.temp_word_file_with_tags_replaced))
         # rename the pdf file into encoded hash
-        os.rename('%s/%s.pdf' % (CONVERTED_DIR, temp_file_name), '%s/%s.pdf' % (CONVERTED_DIR, self.encoded_hash))
+        os.rename('%s/%s.pdf' % (CONVERTED_DIR, cached_file_name), '%s/%s.pdf' % (CONVERTED_DIR, self.encoded_hash))
 
     @skip_file_exists
     def generate(self):
+        try:
+            # download ipfs document if not exists in cache
+            word_IPFS_file_path = self.download_ipfs_document_into_cache()
 
-        # download ipfs document if not exists before in the temp folder
-        self.download_ipfs_temp()
+            # Replaced tags if exists, save replaced document in temp file
+            word_tags_replaced_file_path = self._replace_tags(word_IPFS_file_path)
 
-        # Replaced tags if exists, save replaced document in temp file
-        self._replace_tags()
+            # convert the replaced document file into pdf, then save it into converted folder
+            self._word_pdf(word_tags_replaced_file_path)
 
-        # convert the replaced document file into pdf, then save it into converted folder
-        self._doc_pdf()
+            # rename the pdf file in converted folder into encoded hash to use in in cache
+            self._rename_files()
 
-        # rename the pdf file in converted folder into encoded hash to use in in cache
-        self._rename_files()
+        finally:
+            # Remove the temp file that replaced the tags if exist
+            if os.path.isfile(self.temp_word_file_with_tags_replaced):
+                os.remove(self.temp_word_file_with_tags_replaced)
 
-        # Remove the temp file that replaced the tags
-        os.remove(self.temp_file)
+        return '%s/%s.pdf' % (CONVERTED_DIR, self.encoded_hash)
 
 
 class HtmlDocument(IPFSDocument):
     def __init__(self, hash_key, replace_tags=None):
         super(HtmlDocument, self).__init__(hash_key=hash_key, replace_tags=replace_tags, extension="html")
 
-    def _replace_tags(self):
+    def _replace_tags(self, html_file_path):
         # open html file from temp folder
         # with open(self.IPFS_file, "r" , encoding='utf-8', ) as file:
-        with open(self.IPFS_file, "r") as file:
+        with open(html_file_path, "r") as file:
             data = file.read()
 
         # check if there's tags needs to replace
@@ -132,16 +137,18 @@ class HtmlDocument(IPFSDocument):
 
         return data
 
-    def _doc_pdf(self, string_html, pdf_folder):
-        pdfkit.from_string(string_html, pdf_folder, options=OPTIONS[self.extension])
+    def _html_pdf(self, string_html, pdf_folder):
+        pdfkit.from_string(string_html, pdf_folder, options=DOCUMENT_RENDERING_OPTIONS[self.extension])
 
     @skip_file_exists
     def generate(self):
         # download ipfs document if not exists before in the temp folder
-        self.download_ipfs_temp()
+        html_IPFS_file_path = self.download_ipfs_document_into_cache()
 
         # Replaced tags if exists, return the results into data variable
-        data = self._replace_tags()
+        data = self._replace_tags(html_IPFS_file_path)
 
         # convert the result in variable data into pdf file, save it into converted folder
-        self._doc_pdf(str(data), self.pdf_file_path)
+        self._html_pdf(str(data), self.pdf_file_path)
+
+        return '%s/%s.pdf' % (CONVERTED_DIR, self.encoded_hash)

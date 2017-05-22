@@ -1,10 +1,7 @@
 #!/usr/bin/env python
-from flask import Flask, jsonify, request, abort
-import os, sys
-import logging, traceback
+import sys, traceback
 
-from classes.exceptions import *
-from config import *
+from flask import Flask, jsonify, request, abort
 from flask import send_file
 from flask_cors import CORS
 
@@ -36,7 +33,7 @@ def init_logging():
 def _log_exception():
     exc_type, exc_obj, exc_tb = sys.exc_info()
     file_name = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-    # traceback.print_exc()
+    traceback.print_exc()
     logging.error("Exception type#{}#{}#{}".format(
         exc_type, file_name, exc_tb.tb_lineno))
 
@@ -55,22 +52,17 @@ def replace():
         if r not in required:
             abort(400, {'message': '%s argument is not required'})
 
-    if request.args['type'] not in SUPPORTED_FILE:
-        abort(400, {'message': 'Type should be one of following [ %s ]' % ', '.join(SUPPORTED_FILE)})
+    if request.args['type'] not in SUPPORTED_FILE_TYPES:
+        abort(400, {'message': 'Type should be one of following [ %s ]' % ', '.join(SUPPORTED_FILE_TYPES)})
 
     hash = request.args['hash']
     type = request.args['type']
     logging.debug('Hash is %s' % hash)
 
-    dic = request.json if request.json else {}
-
-    pdf_object = PdfFactory.factory(type)(hash, dic)
-
-    pdf_file = '%s/%s.pdf' % (CONVERTED_DIR, pdf_object.encoded_hash)
-
-    pdf_object.generate()
-
-    return send_file(pdf_file, as_attachment=True), 200
+    dic = request.json or {}
+    pdf_converter = PdfFactory.factory(type)(hash, dic)
+    t = pdf_converter.generate()
+    return send_file(t, as_attachment=True), 200
 
 
 @app.errorhandler(403)

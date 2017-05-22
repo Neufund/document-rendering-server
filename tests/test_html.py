@@ -1,48 +1,35 @@
-import unittest, os
-from classes.utils import *
+import unittest
+
 from classes.documents import *
 from server import init_logging
+from config import CURRENT_DIRECTORY
 
 
 class HtmlDocumentTest(unittest.TestCase):
     def setUp(self):
         self.hash = "QmQvrXFVTbPYHVLRSqPfnCPaVizhBomEKvFgAPB8Cd2B9x"
         self.replace_tags = {
-            "Fifth Force GmbH": "Company",
-            "Germany": "Country"
+            "{company}": "Fifth Force GmbH",
+            "{country}": "Germany",
+            "{hrb-clause}": "the commercial register of the local court of Berlin under HRB 179357 B",
+            "{repo-url}": "git@github.com:Neufund/ESOP.git",
+            "{commit-id}": "",
+            "{court-city}": "Berlin"
         }
-        self.pdf_object = PdfFactory.factory('html')
-        self.doc_object = self.pdf_object(self.hash, self.replace_tags)
+
+        self.html_factory = PdfFactory.factory('html')(self.hash, self.replace_tags)
 
         init_logging()
 
-    def test_ipfs(self):
-        self.doc_object.ipfs.file_ls('QmQEGujQefenqt53Au82gPf5yjEbwzea5UJMxswJqmwtHF')
-
-    def test_download_ipfs(self):
-        self.doc_object.download_ipfs_temp()
-        assert self.doc_object.temp_file != None
-
     def test_replace_tags(self):
-        self.doc_object.download_ipfs_temp()
-        data = self.doc_object._replace_tags()
-        assert data is not None
+        html_file_path = '%s/ESOPTerms&ConditionsDocument.html' % CURRENT_DIRECTORY
+        data = self.html_factory._replace_tags(html_file_path)
+        self.assertIsNot(data, None)
 
-    def test_all_process(self):
-        self.doc_object.generate()
-        assert os.path.isfile(self.doc_object.pdf_file_path)
-
-    def test_wrong_hash(self):
-        hash = "QmQEGujQefenqt53Au82gPf5yjEbwzea5UJMxswJqmwtHF"  # html hash
-
-        doc_object = self.pdf_object(hash, self.replace_tags)
-        try:
-            doc_object.generate()
-        except UnSupportedFileException as e:
-            # expected exception
-            pass
-        else:
-            self.fail('ExpectedException not raised')
+    def test_html_to_pdf(self):
+        output_pdf = "%s/converted/test.pdf"%CURRENT_DIRECTORY
+        self.html_factory._html_pdf("<h1>Test Convert to pdf</h1>", output_pdf)
+        self.assertTrue(os.path.exists(output_pdf))
 
 
 if __name__ == '__main__':

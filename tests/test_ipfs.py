@@ -11,9 +11,6 @@ class IPFSTest(unittest.TestCase):
             'company': 'Fifth Forth'
         }, 'word')
 
-    def test_check_IPFS_pinned_document(self):
-        self.assertTrue(self.ipfs_document._is_document_pinned())
-
     def test_download_file_to_cache(self):
-        downloaded_IPFS_file = self.ipfs_document.download_ipfs_document_into_cache()
+        downloaded_IPFS_file = self.ipfs_document.download_pinned_ipfs_document_into_cache()
         self.assertTrue(os.path.exists(downloaded_IPFS_file))

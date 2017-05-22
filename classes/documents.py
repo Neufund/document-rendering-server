@@ -38,7 +38,7 @@ def skip_file_exists(func):
 
 
 class WordDocument(IPFSDocument):
-    def __init__(self, hash_key, replace_tags=None):
+    def __init__(self, hash_key, replace_tags=None, document_rendered_options=None):
         super(WordDocument, self).__init__(hash_key=hash_key, replace_tags=replace_tags, extension="word")
         self.temp_word_file_with_tags_replaced = None
 
@@ -101,10 +101,10 @@ class WordDocument(IPFSDocument):
     def generate(self):
         try:
             # download ipfs document if not exists in cache
-            word_IPFS_file_path = self.download_ipfs_document_into_cache()
+            word_ipfs_file_path = self.download_pinned_ipfs_document_into_cache()
 
             # Replaced tags if exists, save replaced document in temp file
-            word_tags_replaced_file_path = self._replace_tags(word_IPFS_file_path)
+            word_tags_replaced_file_path = self._replace_tags(word_ipfs_file_path)
 
             # convert the replaced document file into pdf, then save it into converted folder
             self._word_pdf(word_tags_replaced_file_path)
@@ -121,12 +121,12 @@ class WordDocument(IPFSDocument):
 
 
 class HtmlDocument(IPFSDocument):
-    def __init__(self, hash_key, replace_tags=None):
+    def __init__(self, hash_key, replace_tags=None, document_rendered_options=None):
         super(HtmlDocument, self).__init__(hash_key=hash_key, replace_tags=replace_tags, extension="html")
+        self.document_rendered_options = document_rendered_options
 
     def _replace_tags(self, html_file_path):
         # open html file from temp folder
-        # with open(self.IPFS_file, "r" , encoding='utf-8', ) as file:
         with open(html_file_path, "r") as file:
             data = file.read()
 
@@ -138,15 +138,15 @@ class HtmlDocument(IPFSDocument):
         return data
 
     def _html_pdf(self, string_html, pdf_folder):
-        pdfkit.from_string(string_html, pdf_folder, options=DOCUMENT_RENDERING_OPTIONS[self.extension])
+        pdfkit.from_string(string_html, pdf_folder, options=self.document_rendered_options)
 
     @skip_file_exists
     def generate(self):
         # download ipfs document if not exists before in the temp folder
-        html_IPFS_file_path = self.download_ipfs_document_into_cache()
+        html_ipfs_file_path = self.download_pinned_ipfs_document_into_cache()
 
         # Replaced tags if exists, return the results into data variable
-        data = self._replace_tags(html_IPFS_file_path)
+        data = self._replace_tags(html_ipfs_file_path)
 
         # convert the result in variable data into pdf file, save it into converted folder
         self._html_pdf(str(data), self.pdf_file_path)

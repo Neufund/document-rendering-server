@@ -57,7 +57,7 @@ class IPFSDocument:
         return self.hash in list(pin_files['Keys'].keys())
 
     @ipfs_connect
-    def download_ipfs_document_into_cache(self):
+    def download_pinned_ipfs_document_into_cache(self):
         """
         - Download ipfs document into cache folder
         """
@@ -66,24 +66,24 @@ class IPFSDocument:
             raise AccessDeniedException('You don\'t have permission to access.')
 
         content = self.ipfs.cat(self.hash)
-        logging.debug('start Download IPFS document: %s' % self.hash)
-        temp = tempfile.NamedTemporaryFile(prefix='document_', dir=IPFS_CACHE_DIR, delete=False)
+        logging.debug('Start downloading IPFS document: %s' % self.hash)
+        temp_ipfs_cached_file_path = tempfile.NamedTemporaryFile(prefix='document_', dir=IPFS_CACHE_DIR, delete=False)
 
-        with temp:
-            temp.write(content)
+        with temp_ipfs_cached_file_path:
+            temp_ipfs_cached_file_path.write(content)
 
-        # Check if file extention is the same in requested
-        self._check_file_extention(temp.name)
+        # Check if file extension is the same in requested
+        self._check_file_extension(temp_ipfs_cached_file_path.name)
 
         # Rename the IPFS file to hash
-        IPFS_file_path = '%s/%s' % (IPFS_CACHE_DIR, self.hash)
+        new_ipfs_cached_file_path = '%s/%s' % (IPFS_CACHE_DIR, self.hash)
 
         # Rename the cached file to ipfs file name
-        os.rename(temp.name, IPFS_file_path)
+        os.rename(temp_ipfs_cached_file_path.name, new_ipfs_cached_file_path)
 
-        return IPFS_file_path
+        return new_ipfs_cached_file_path
 
-    def _check_file_extention(self, file_path):
+    def _check_file_extension(self, file_path):
         file_type = magic.from_file(file_path)
 
         logging.debug("File type is %s" % file_type)

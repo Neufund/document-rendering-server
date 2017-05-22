@@ -30,5 +30,15 @@ class WordDocumentTest(unittest.TestCase):
 
         self.assertTrue(os.path.exists(output_word))
 
+    def test_wrong_word_path_to_pdf(self):
+        try:
+            word_file_path = '%s/ESOPTerms&ConditionsDocument.doc' % CURRENT_DIRECTORY
+            self.word_factory._word_pdf(word_file_path)
+            output_word = '%s/ESOPTerms&ConditionsDocument.pdf'%CONVERTED_DIR
+        except NotFoundException:
+            pass
+        else:
+            self.fail("NotFoundException supposed to be raised")
+
 if __name__ == '__main__':
     unittest.main()

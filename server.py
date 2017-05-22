@@ -60,9 +60,9 @@ def replace():
     logging.debug('Hash is %s' % hash)
 
     dic = request.json or {}
-    pdf_converter = PdfFactory.factory(type)(hash, dic)
-    t = pdf_converter.generate()
-    return send_file(t, as_attachment=True), 200
+    pdf_converter = PdfFactory.factory(type)(hash, dic, DOCUMENT_RENDERING_OPTIONS[type])
+
+    return send_file(pdf_converter.generate(), as_attachment=True), 200
 
 
 @app.errorhandler(403)

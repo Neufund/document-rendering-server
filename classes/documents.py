@@ -13,19 +13,25 @@ from config import *
 
 
 class PdfFactory(object):
-    def factory(type):
+    def factory(type, hash_key, replace_tags=None, document_rendered_options_factory=None):
+
+        document_rendered_options = document_rendered_options_factory[
+            type] if document_rendered_options_factory else None
+
         if type == "html":
-            return HtmlDocument
+            return HtmlDocument(hash_key=hash_key, replace_tags=replace_tags,
+                                document_rendered_options=document_rendered_options)
         elif type == "word":
-            return WordDocument
+            return WordDocument(hash_key=hash_key, replace_tags=replace_tags,
+                                document_rendered_options=document_rendered_options)
         else:
-            raise UnSupportedFileException("un supported extension")
+            raise UnSupportedFileException("Unsupported extension")
 
     factory = staticmethod(factory)
 
 
 # Decorator : If pdf file exist no need to execute the function.
-def skip_file_exists(func):
+def check_pdf_file_exists(func):
     def checker(*args):
         file_path = args[0].pdf_file_path
         if os.path.exists(file_path):
@@ -97,8 +103,9 @@ class WordDocument(IPFSDocument):
         # rename the pdf file into encoded hash
         os.rename('%s/%s.pdf' % (CONVERTED_DIR, cached_file_name), '%s/%s.pdf' % (CONVERTED_DIR, self.encoded_hash))
 
-    @skip_file_exists
+    @check_pdf_file_exists
     def generate(self):
+        word_tags_replaced_file_path = None
         try:
             # download ipfs document if not exists in cache
             word_ipfs_file_path = self.download_pinned_ipfs_document_into_cache()
@@ -114,8 +121,8 @@ class WordDocument(IPFSDocument):
 
         finally:
             # Remove the temp file that replaced the tags if exist
-            if os.path.isfile(self.temp_word_file_with_tags_replaced):
-                os.remove(self.temp_word_file_with_tags_replaced)
+            if word_tags_replaced_file_path and os.path.exists(word_tags_replaced_file_path):
+                os.remove(word_tags_replaced_file_path)
 
         return '%s/%s.pdf' % (CONVERTED_DIR, self.encoded_hash)
 
@@ -140,7 +147,7 @@ class HtmlDocument(IPFSDocument):
     def _html_pdf(self, string_html, pdf_folder):
         pdfkit.from_string(string_html, pdf_folder, options=self.document_rendered_options)
 
-    @skip_file_exists
+    @check_pdf_file_exists
     def generate(self):
         # download ipfs document if not exists before in the temp folder
         html_ipfs_file_path = self.download_pinned_ipfs_document_into_cache()

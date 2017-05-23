@@ -74,7 +74,7 @@ docker-compose up --build
     ...
 }`
 - you should send the hash of the ipfs document and the type as well.<br/>
-<b>Note:</b>the type must be "word" or "html".
+<b>Note:</b> the type must be "word" or "html".
 
 # CURl Example
 you just need to change `<SERVER_IP>` below
@@ -86,7 +86,7 @@ curl -X POST -H "Content-Type: application/json" -H "Cache-Control: no-cache" -d
   "repo-url":"git@github.com:Neufund/ESOP.git",
   "commit-id":"",
   "court-city":"Berlin"
-}' "<SERVER_IP>/api/document?hash=QmQEGujQefenqt53Au82gPf5yjEbwzea5UJMxswJqmwtHF&type=html"
+}' "<SERVER_IP>/api/document?hash=QmQEGujQefenqt53Au82gPf5yjEbwzea5UJMxswJqmwtHF&type=word"
 ```
 
 # Supported file type

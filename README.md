@@ -37,12 +37,13 @@ in config file you will find
 
 # Setup
 Use Docker to install it easily <br/>
-- Install `docker` from<a href="https://docs.docker.com/engine/installation/">here</a>.
+- Install `docker` from <a href="https://docs.docker.com/engine/installation/">here</a>.
 - We use `docker-compose` version 2, so add this file 
 ```
 version: '2'
 services:
   render-pdf:
+    env_file: <DIRECTORY/render_pdf.env>
     build: .
     ports:
       - "5000:5000"
@@ -59,7 +60,7 @@ volumes:
 
 - In `docker-composer.yml` file you will find the variable environments.
  `IPFS_HOST` and `IPFS_PORT` you just need to define them in `render_pdf.env` file
-- specify `env_file: <DIR/render_pdf.env>` in `docker-composer.yml` .
+- specify `env_file: <DIRECTORY/render_pdf.env>` in `docker-composer.yml` .
 - Run the following command
 
 ```

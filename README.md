@@ -1,8 +1,5 @@
 # What is Document Rendering Micro Service
 Simply this micro service is replacing the tags from documents pinned on IPFS then export them as pdf.
-- Download documents from IPFS node
-- Replace some tags from the word document with json send by the api.
-- export pdf file to the endpoint
 
 # Why this micro service exists
 Because its very hard to have perfect results when you are going to convert documents from word or html 
@@ -26,7 +23,7 @@ example: `ipfs.neufund.org/ipfs/QmQvrXFVTbPYHVLRSqPfnCPaVizhBomEKvFgAPB8Cd2B9x`
 }
 ```
 
-- Using Factory design pattern to detect the document type to know which method should be used in converting 
+- Using Factory design pattern to detect the document type to know which method should use in converting 
 to pdf.
 - Cache the PDF file.
 - Send the pdf file to the user using the endpoint, details about the endpoint below.
@@ -37,7 +34,7 @@ in config file you will find
 
 # Setup
 Use Docker to install it easily <br/>
-- Install `docker` from <a href="https://docs.docker.com/engine/installation/">here</a>.
+- Install `docker` from <a target="_blank" href="https://docs.docker.com/engine/installation/">here</a>.
 - We use `docker-compose` version 2, so add this file 
 ```
 version: '2'

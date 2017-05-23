@@ -90,13 +90,13 @@ class IPFSDocument:
 
         if not file_type:
             os.remove(file_path)
-            raise UnKnownFileTypeException("Unknown file")
+            raise UnKnownFileTypeException(file_type)
 
         checked_file_extension = [file for file in SUPPORTED_FILE_TYPES if file in file_type.lower()]
         if len(checked_file_extension) == 0:
             os.remove(file_path)
-            raise UnSupportedFileException("%s Unsupported file type" % file_type)
+            raise UnSupportedFileException(file_type)
 
         if self.extension != checked_file_extension[0]:
             os.remove(file_path)
-            raise UnSupportedFileException("This document is %s and you assume it as %s" % (file_type, self.extension))
+            raise UnSupportedFileException(file_type)

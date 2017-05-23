@@ -18,15 +18,15 @@ class AccessDeniedException(MainException):
 
 
 class UnSupportedFileException(MainException):
-    def __init__(self, message, code=403):
+    def __init__(self, file_type, code=403):
         # Call the base class constructor with the parameters it needs
-        super(UnSupportedFileException, self).__init__(message, code)
+        super(UnSupportedFileException, self).__init__("%s Unsupported file type" % file_type, code)
 
 
 class UnKnownFileTypeException(MainException):
-    def __init__(self, message, code=403):
+    def __init__(self, file_type, code=403):
         # Call the base class constructor with the parameters it needs
-        super(UnKnownFileTypeException, self).__init__(message, code)
+        super(UnKnownFileTypeException, self).__init__("%s Unknown file extension" % file_type, code)
 
 
 class NotFoundException(MainException):

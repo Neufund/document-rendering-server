@@ -1,5 +1,5 @@
-import unittest, os
-from classes.utils import *
+import unittest
+
 from classes.documents import *
 
 

@@ -1,6 +1,6 @@
 # What is Document Rendering Micro Service
 Simply this micro service is replacing the tags from documents pinned on IPFS then export them as pdf.
-- Download documents from Neufund IPFS node
+- Download documents from IPFS node
 - Replace some tags from the word document with json send by the api.
 - export pdf file to the endpoint
 

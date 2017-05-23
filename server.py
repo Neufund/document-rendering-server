@@ -33,7 +33,7 @@ def init_logging():
 def _log_exception():
     exc_type, exc_obj, exc_tb = sys.exc_info()
     file_name = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-    traceback.print_exc()
+    # traceback.print_exc()
     logging.error("Exception type#{}#{}#{}".format(
         exc_type, file_name, exc_tb.tb_lineno))
 
@@ -60,7 +60,7 @@ def replace():
     logging.debug('Hash is %s' % hash)
 
     dic = request.json or {}
-    pdf_converter = PdfFactory.factory(type, hash, dic, DOCUMENT_RENDERING_OPTIONS)
+    pdf_converter = PdfFactory.factory(type, hash, dic)
 
     return send_file(pdf_converter.generate(), as_attachment=True), 200
 

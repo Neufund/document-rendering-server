@@ -12,5 +12,5 @@ class IPFSTest(unittest.TestCase):
         }, 'word')
 
     def test_download_file_to_cache(self):
-        downloaded_IPFS_file = self.ipfs_document.download_pinned_ipfs_document_into_cache()
-        self.assertTrue(os.path.exists(downloaded_IPFS_file))
+        downloaded_ipfs_file = self.ipfs_document.download_pinned_ipfs_document_into_cache()
+        self.assertTrue(os.path.exists(downloaded_ipfs_file))

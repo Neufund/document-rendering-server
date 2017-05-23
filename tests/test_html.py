@@ -17,9 +17,7 @@ class HtmlDocumentTest(unittest.TestCase):
             "{court-city}": "Berlin"
         }
 
-        self.html_factory = PdfFactory.factory('html')(self.hash, self.replace_tags)
-
-        init_logging()
+        self.html_factory = PdfFactory.factory('html', self.hash, self.replace_tags)
 
     def test_replace_tags(self):
         html_file_path = '%s/ESOPTerms&ConditionsDocument.html' % CURRENT_DIRECTORY
@@ -27,9 +25,9 @@ class HtmlDocumentTest(unittest.TestCase):
         self.assertIsNot(data, None)
 
     def test_html_to_pdf(self):
-        output_pdf = "%s/converted/test.pdf"%CURRENT_DIRECTORY
-        self.html_factory._html_pdf("<h1>Test Convert to pdf</h1>", output_pdf)
-        self.assertTrue(os.path.exists(output_pdf))
+        output_pdf_expected_file = "%s/converted/test.pdf"%CURRENT_DIRECTORY
+        self.html_factory._html_pdf("<h1>Test Convert to pdf</h1>", output_pdf_expected_file)
+        self.assertTrue(os.path.exists(output_pdf_expected_file))
 
 
 if __name__ == '__main__':

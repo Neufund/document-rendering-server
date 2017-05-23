@@ -13,10 +13,9 @@ from config import *
 
 
 class PdfFactory(object):
-    def factory(type, hash_key, replace_tags=None, document_rendered_options_factory=None):
+    def factory(type, hash_key, replace_tags=None):
 
-        document_rendered_options = document_rendered_options_factory[
-            type] if document_rendered_options_factory else None
+        document_rendered_options = DOCUMENT_RENDERING_OPTIONS[type]
 
         if type == "html":
             return HtmlDocument(hash_key=hash_key, replace_tags=replace_tags,

@@ -48,7 +48,7 @@ class IPFSDocument:
     # Check if hash is valid
     def _check_valid_hash_key(self):
         if not isinstance(self.hash, str):
-            raise UndefinedIPFSHashException('%s is invalid IPFS Hash, should be string' % self.hash)
+            raise UndefinedIPFSHashException(self.hash)
 
     # Check if the document is pinned in the ipfs server
     @ipfs_connect

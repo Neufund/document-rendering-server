@@ -25,12 +25,6 @@ class ApiTest(unittest.TestCase):
         response = self.tester.post('/api/document?hash=%s&type=%s' % (hash, type))
         self.assertEqual(response.status_code, 200)
 
-    def test_mistake_file_type(self):
-        hash = "QmQEGujQefenqt53Au82gPf5yjEbwzea5UJMxswJqmwtHF"  # Word hash
-        type = "html"
-        response = self.tester.post('/api/document?hash=%s&type=%s' % (hash, type))
-        self.assertEqual(response.status_code, 403)
-
 
 if __name__ == '__main__':
     unittest.main()

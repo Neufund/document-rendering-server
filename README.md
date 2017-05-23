@@ -73,6 +73,8 @@ docker-compose up --build
     "{country}": "Germany"
     ...
 }`
+- you should send the hash of the ipfs document and the type as well.<br/>
+<b>Note:</b>the type must be "word" or "html".
 
 # CURl Example
 you just need to change `<SERVER_IP>` below

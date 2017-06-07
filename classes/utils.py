@@ -22,8 +22,7 @@ def ipfs_connect(func):
             IPFS_CONNECT_TIMEOUT)
 
         if self.ipfs is None:
-            self.ipfs = ipfsapi.connect(SERVER_IP, IPFS_PORT,
-                                        timeout=(IPFS_TRANSMIT_CONNECT_TIMEOUT, IPFS_CONNECT_TIMEOUT))
+            self.ipfs = ipfsapi.connect(SERVER_IP, IPFS_PORT)
 
         function_return = func(self)
 

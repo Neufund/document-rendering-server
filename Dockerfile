@@ -1,4 +1,4 @@
-FROM python:3.4
+FROM python:3.6
 
 RUN apt-get update
 RUN apt-get upgrade -y

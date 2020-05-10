@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import json
 import logging
+import re
 import tempfile
 from hashlib import sha1
 
@@ -31,6 +32,9 @@ def ipfs_connect(func):
     return connection
 
 
+re_pattern_ipfs_hash = re.compile(r"^Qm[0-9a-zA-Z]+$")
+
+
 class IPFSDocument:
     def __init__(self, hash_key, replace_tags=None, extension=None):
         self.ipfs = None
@@ -47,7 +51,10 @@ class IPFSDocument:
     # Check if hash is valid
     def _check_valid_hash_key(self):
         if not isinstance(self.hash, str):
-            raise UndefinedIPFSHashException(self.hash)
+            raise InvalidIPFSHashException(self.hash)
+
+        if re_pattern_ipfs_hash.fullmatch(self.hash) is None:
+            raise InvalidIPFSHashException(self.hash)
 
     # Check if the document is pinned in the ipfs server
     @ipfs_connect

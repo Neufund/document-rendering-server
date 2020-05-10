@@ -58,6 +58,7 @@ def replace():
     hash = request.args['hash']
     type = request.args['type']
     logging.debug('Hash is %s' % hash)
+    logging.debug('Type is %s' % type)
 
     dic = request.json or {}
     pdf_converter = PdfFactory.factory(type, hash, dic)

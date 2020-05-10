@@ -96,4 +96,8 @@ Hash function used for renaming the pdf cached files hashes is sha1
 
 # Testing
 `python -m unittest`
-
+##Note
+**Added during latest quick fixes**  
+Project currently is in low maintanance mode and we are missing guide how to run it locally.  
+But to run latest added tests you can call it simply by just running subset of all tests.  
+`python -m unittest tests/test_hash_validation.py`

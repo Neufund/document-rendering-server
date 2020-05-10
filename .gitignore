@@ -97,3 +97,5 @@ ENV/
 .html
 docker-compose.yml
 ipfs_cache/*
+
+.direnv

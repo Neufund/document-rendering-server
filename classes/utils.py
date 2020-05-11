@@ -59,7 +59,7 @@ class IPFSDocument:
     # Check if the document is pinned in the ipfs server
     @ipfs_connect
     def _is_document_pinned(self):
-        pin_files = self.ipfs.pin_ls()
+        pin_files = self.ipfs.pin.ls()
         return self.hash in list(pin_files['Keys'].keys())
 
     @ipfs_connect

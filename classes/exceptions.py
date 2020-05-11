@@ -42,7 +42,7 @@ class BashScriptException(MainException):
         super(BashScriptException, self).__init__(message, code)
 
 
-class UndefinedIPFSHashException(MainException):
+class InvalidIPFSHashException(MainException):
     def __init__(self, message, code=301):
         # Call the base class constructor with the parameters it needs
-        super(UndefinedIPFSHashException, self).__init__('%s is invalid IPFS Hash, should be string' % message, code)
+        super(InvalidIPFSHashException, self).__init__('%s is invalid IPFS Hash' % message, code)

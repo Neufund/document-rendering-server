@@ -11,8 +11,8 @@ LOG_FORMAT = '{asctime}#{levelname}#{filename}#{funcName}#{lineno}#{message}'
 LOG_COLOR = True
 
 IPFS_CACHE_DIR = "%s/ipfs_cache" % CURRENT_DIRECTORY
-SERVER_IP = os.environ['SERVER_IP']
-IPFS_PORT = os.environ['IPFS_PORT']
+SERVER_IP = os.environ.get('SERVER_IP')
+IPFS_PORT = os.environ.get('IPFS_PORT')
 
 IPFS_CONNECT_TIMEOUT = 10
 IPFS_TRANSMIT_CONNECT_TIMEOUT = 10

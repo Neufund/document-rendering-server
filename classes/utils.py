@@ -5,7 +5,7 @@ import re
 import tempfile
 from hashlib import sha1
 
-import ipfsapi
+import ipfshttpclient
 import magic
 
 from classes.exceptions import *
@@ -23,7 +23,7 @@ def ipfs_connect(func):
             IPFS_CONNECT_TIMEOUT)
 
         if self.ipfs is None:
-            self.ipfs = ipfsapi.connect(SERVER_IP, IPFS_PORT)
+            self.ipfs = ipfshttpclient.connect(f"/dns/{SERVER_IP}/tcp/{IPFS_PORT}/http", timeout=(IPFS_CONNECT_TIMEOUT, IPFS_TRANSMIT_CONNECT_TIMEOUT))
 
         function_return = func(self)
 

@@ -1,8 +1,8 @@
 Flask==1.0.2
-Flask-Cors
-python-docx
-requests
-ipfsapi
-pdfkit
-python-magic
-uwsgi
+Flask-Cors==3.0.8
+python-docx==0.8.10
+requests==2.23.0
+ipfshttpclient @ git+git://github.com/ipfs-shipyard/py-ipfs-http-client@5e3edf5f8e9e117738c77b5773c78d7b48942bc2
+pdfkit==0.6.1
+python-magic==0.4.18
+uwsgi==2.0.18

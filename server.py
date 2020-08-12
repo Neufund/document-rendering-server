@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import sys, traceback
+import sys
 
 from flask import Flask, jsonify, request, abort
 from flask import send_file
@@ -11,30 +11,26 @@ app = Flask(__name__)
 app.config.from_pyfile('config.py')
 app.config.from_mapping(os.environ)
 
+"""Initializes logging."""
+if LOG_COLOR:
+    logging.addLevelName(logging.DEBUG,
+                         "\033[1;00m%s\033[1;0m" % logging.getLevelName(logging.DEBUG))
+    logging.addLevelName(logging.INFO,
+                         "\033[1;34m%s\033[1;0m" % logging.getLevelName(logging.INFO))
+    logging.addLevelName(logging.WARNING,
+                         "\033[0;33m%s\033[0;0m" % logging.getLevelName(logging.WARNING))
+    logging.addLevelName(logging.ERROR,
+                         "\033[1;31m%s\033[1;0m" % logging.getLevelName(logging.ERROR))
+    logging.addLevelName(logging.CRITICAL,
+                         "\033[0;31m%s\033[0;0m" % logging.getLevelName(logging.CRITICAL))
 
-def init_logging():
-    """Initializes logging."""
-    if LOG_COLOR:
-        logging.addLevelName(logging.DEBUG,
-                             "\033[1;00m%s\033[1;0m" % logging.getLevelName(logging.DEBUG))
-        logging.addLevelName(logging.INFO,
-                             "\033[1;34m%s\033[1;0m" % logging.getLevelName(logging.INFO))
-        logging.addLevelName(logging.WARNING,
-                             "\033[0;33m%s\033[0;0m" % logging.getLevelName(logging.WARNING))
-        logging.addLevelName(logging.ERROR,
-                             "\033[1;31m%s\033[1;0m" % logging.getLevelName(logging.ERROR))
-        logging.addLevelName(logging.CRITICAL,
-                             "\033[0;31m%s\033[0;0m" % logging.getLevelName(logging.CRITICAL))
-
-    logging.basicConfig(level=LOG_LEVEL,
-                        format=LOG_FORMAT, style='{')
+logging.basicConfig(level=LOG_LEVEL, format=LOG_FORMAT, style='{')
 
 
 def _log_exception():
     exc_type, exc_obj, exc_tb = sys.exc_info()
     file_name = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-    # traceback.print_exc()
-    logging.error("Exception type#{}#{}#{}".format(
+    logging.exception("Exception type#{}#{}#{}".format(
         exc_type, file_name, exc_tb.tb_lineno))
 
 
@@ -109,7 +105,5 @@ def handle_error(e):
 
 
 if __name__ == '__main__':
-    app.config.from_mapping(os.environ)
     CORS(app)
-    init_logging()
     app.run(debug=True)

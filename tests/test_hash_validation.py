@@ -1,6 +1,7 @@
 import unittest
 
-from classes.utils import IPFSDocument, InvalidIPFSHashException
+from classes.exceptions import InvalidIPFSHashException
+from classes.ipfs_document import IPFSDocument
 
 
 class IPFSTestHashValidation(unittest.TestCase):

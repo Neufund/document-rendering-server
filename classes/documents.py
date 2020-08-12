@@ -8,7 +8,7 @@ import pdfkit
 from docx import Document
 
 from classes.exceptions import *
-from classes.utils import IPFSDocument
+from classes.ipfs_document import IPFSDocument
 from config import *
 
 

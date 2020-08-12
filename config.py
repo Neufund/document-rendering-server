@@ -4,8 +4,6 @@ CURRENT_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 
 CONVERTED_DIR = "%s/converted" % CURRENT_DIRECTORY
 
-IPFS_NODE_URL = "https://ipfs.io/ipfs"
-
 LOG_LEVEL = 'DEBUG'
 LOG_FORMAT = '{asctime}#{levelname}#{filename}#{funcName}#{lineno}#{message}'
 LOG_COLOR = True

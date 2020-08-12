@@ -44,20 +44,26 @@ services:
     build: .
     ports:
       - "5000:5000"
-    environment:
-      - SERVER_IP=${IPFS_HOST}
-      - IPFS_PORT=${IPFS_PORT}
     volumes:
-      - ipfs_cache: /app/ipfs_cache
-      - converted: /app/converted
+      - ipfs_cache:/app/ipfs_cache
+      - converted:/app/converted
+  # optional for local testing
+  ipfs-host:
+    image: ipfs/go-ipfs:v0.5.1
+    ports:
+      - "4001:4001"
+      - "4001:4001/udp"
+      - "127.0.0.1:8080:8080"
+      - "127.0.0.1:5001:5001"
 volumes:
   ipfs_cache:
   converted:
+
 ```
 
-- In `docker-composer.yml` file you will find the variable environments.
+- In `docker-compose.yml` file you will find the variable environments.
  `IPFS_HOST` and `IPFS_PORT` you just need to define them in `render_pdf.env` file
-- specify `env_file: <DIRECTORY/render_pdf.env>` in `docker-composer.yml` .
+- specify `env_file: <DIRECTORY/render_pdf.env>` in `docker-compose.yml`.
 - Run the following command
 
 ```

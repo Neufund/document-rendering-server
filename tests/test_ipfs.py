@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from classes.utils import IPFSDocument
+from classes.ipfs_document import IPFSDocument
 
 
 class IPFSTest(unittest.TestCase):

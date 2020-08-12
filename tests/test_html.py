@@ -1,7 +1,6 @@
 import unittest
 
 from classes.documents import *
-from server import init_logging
 from config import CURRENT_DIRECTORY
 
 

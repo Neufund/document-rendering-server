@@ -1,5 +1,5 @@
 Flask==1.0.2
-Flask-Cors==3.0.8
+Flask-Cors==3.0.9
 python-docx==0.8.10
 requests==2.23.0
 ipfshttpclient @ git+git://github.com/ipfs-shipyard/py-ipfs-http-client@5e3edf5f8e9e117738c77b5773c78d7b48942bc2
